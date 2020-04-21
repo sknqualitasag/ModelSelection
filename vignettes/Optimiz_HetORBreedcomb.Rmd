@@ -1,0 +1,391 @@
+---
+title: "Modell Selektion"
+author: "Sophie Kunz"
+date: "16 April 2020"
+output: pdf_document
+params:
+  data: ""
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Background Infos
+Document: https://charlotte-ngs.github.io/GELASMSS2019/sol/w11/gel-w09-sol01.pdf
+
+# Modell Selektion
+Specifisch zu Heterosis und Rekombination sowie Rassenkombination.
+
+```{r, include=FALSE, warning=FALSE}
+require(dplyr)
+```
+
+```{r, include=FALSE}
+### # Read dataset
+s_data_path <- params$data
+if (!file.exists(s_data_path)) stop(" * ERROR: cannot file data file: ", s_data_path)
+tbl_data <- readr::read_delim(file = s_data_path, delim = " ")
+
+### # Remove and rename some columns
+tbl_data <- tbl_data %>% select(-c(herdyear,herd,calfcull,controlcull,ageVK,slaughterCategory,branding,ccvn,ccvo,cwvn,cwvo,cfvn,cfvo,cavn,cavo))
+names(tbl_data)[30] <- "het"
+names(tbl_data)[31] <- "rec"
+
+### # Convert all fixed effects info factors
+tbl_data$sex <- as.factor(tbl_data$sex)
+tbl_data$abattoir <- as.factor(tbl_data$abattoir)
+tbl_data$classifier <- as.factor(tbl_data$classifier)
+tbl_data$yearsaison <- as.factor(tbl_data$yearsaison)
+tbl_data$breedcomb <- as.factor(tbl_data$breedcomb)
+tbl_data$prodsystem <- as.factor(tbl_data$prodsystem)
+tbl_data$het <- as.factor(tbl_data$het)
+tbl_data$rec <- as.factor(tbl_data$rec)
+```
+
+## Fleischigkeit
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cca_model <- lm(ccao ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cca_model)
+```
+### Grossviehmast ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_cca_model_oCov <- lm(ccao ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec , data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cca_model_oCov)
+```
+
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_ccan_model <- lm(ccan ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_ccan_model)
+```
+### Natura-Beef ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_ccan_model_oCov <- lm(ccan ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_ccan_model_oCov)
+```
+### SwissPrimBeef
+
+```{r, echo=TRUE, results=FALSE}
+lm_ccas_model <- lm(ccas ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec  , data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_ccas_model)
+```
+
+
+### SwissPrimBeef ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_ccas_model_oCov <- lm(ccas ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec  , data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_ccas_model_oCov)
+```
+
+
+### Kälbermast
+
+```{r, echo=TRUE, results=FALSE}
+lm_ccco_model <- lm(ccco ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_ccco_model)
+```
+### Kälbermast ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_ccco_model_oCov <- lm(ccco ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec , data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_ccco_model_oCov)
+```
+
+### Natura-Veal
+
+```{r, echo=TRUE, results=FALSE}
+lm_cccn_model <- lm(cccn ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cccn_model)
+```
+### Natura-Veal ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_cccn_model_oCov <- lm(cccn ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cccn_model_oCov)
+```
+
+## Schlachtgewicht
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwa_model <- lm(cwao ~ sex + abattoir + yearsaison + breedcomb + het + rec  + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwa_model)
+```
+### Grossviehmast ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwa_model_oCov <- lm(cwao ~ sex + abattoir + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwa_model_oCov)
+```
+
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwan_model <- lm(cwan ~ sex + abattoir + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwan_model)
+```
+
+### Natura-Beef ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwan_model_oCov <- lm(cwan ~ sex + abattoir + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwan_model_oCov)
+```
+
+
+### SwissPrimBeef
+```{r, echo=TRUE, results=FALSE}
+lm_cwas_model <- lm(cwas ~ sex + abattoir + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwas_model)
+```
+
+### SwissPrimBeef ohne Cov
+```{r, echo=TRUE, results=FALSE}
+lm_cwas_model_oCov <- lm(cwas ~ sex + abattoir + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwas_model_oCov)
+```
+
+### Kälbermast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwco_model <- lm(cwco ~ sex + abattoir + yearsaison + breedcomb + het + rec  + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwco_model)
+```
+### Kälbermast ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwco_model_oCov <- lm(cwco ~ sex + abattoir + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwco_model_oCov)
+```
+
+
+### Natura-Veal
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwcn_model <- lm(cwcn ~ sex + abattoir + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwcn_model)
+```
+### Natura-Veal ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwcn_model_oCov <- lm(cwcn ~ sex + abattoir + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwcn_model_oCov)
+```
+
+## Fettabdeckung
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfa_model <- lm(cfao ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfa_model)
+```
+### Grossviehmast ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfa_model_oCov <- lm(cfao ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfa_model_oCov)
+```
+
+
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfan_model <- lm(cfan ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfan_model)
+```
+### Natura-Beef ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfan_model_oCov <- lm(cfan ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfan_model_oCov)
+```
+
+### SwissPrimBeef
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfas_model <- lm(cfas ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfas_model)
+```
+### SwissPrimBeef ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfas_model_oCov <- lm(cfas ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfas_model_oCov)
+```
+
+### Kälbermast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfco_model <- lm(cfco ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfco_model)
+```
+### Kälbermast ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfco_model_oCov <- lm(cfco ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfco_model_oCov)
+```
+
+
+### Natura-Veal
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfcn_model <- lm(cfcn ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfcn_model)
+```
+### Natura-Veal ohne Cov
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfcn_model_oCov <- lm(cfcn ~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfcn_model_oCov)
+```
+
+
+## Schlachtalter 
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_caa_model <- lm(caao ~ sex + abattoir + yearsaison + breedcomb + het + rec , data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_caa_model)
+```
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_caan_model <- lm(caan ~ sex + abattoir + yearsaison + breedcomb + het + rec , data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_caan_model)
+```
+### SwissPrimBeef
+
+```{r, echo=TRUE, results=FALSE}
+lm_caas_model <- lm(caas ~ sex + abattoir + yearsaison + breedcomb + het + rec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_caas_model)
+```
+### Kälbermast
+
+```{r, echo=TRUE, results=FALSE}
+lm_caco_model <- lm(caco ~ sex + abattoir + yearsaison + breedcomb + het + rec , data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_caco_model)
+```
+### Natura-Veal
+
+```{r, echo=TRUE, results=FALSE}
+lm_cacn_model <- lm(cacn ~ sex + abattoir + yearsaison + breedcomb + het + rec , data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cacn_model)
+```
+
