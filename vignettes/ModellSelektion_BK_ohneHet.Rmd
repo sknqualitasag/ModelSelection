@@ -1,0 +1,118 @@
+---
+title: "Modell Selektion Bankkälber"
+author: "Sophie Kunz"
+date: "25 Februar 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Background Infos
+Document: https://charlotte-ngs.github.io/GELASMSS2019/sol/w11/gel-w09-sol01.pdf
+
+# Let's try package olsrr
+
+```{r, include=FALSE}
+### # Read dataset
+s_data_file <- "../../work/Sample_ForModellSelektion_Produktionssystem/mix99_fleisch.dat"
+tbl_data <- readr::read_delim(file = s_data_file, delim = " ")
+
+library(dplyr)
+tbl_data <- tbl_data %>% select(-c(herdyear,herd,calfcull,controlcull,ageVK,slaughterCategory,branding,ccao,ccvo,cwao,cwvo,cfao,cfvo,caao,cavo))
+
+### # Convert all fixed effects info factors
+tbl_data$sex <- as.factor(tbl_data$sex)
+tbl_data$abattoir <- as.factor(tbl_data$abattoir)
+tbl_data$classifier <- as.factor(tbl_data$classifier)
+tbl_data$yearsaison <- as.factor(tbl_data$yearsaison)
+str(tbl_data)
+```
+
+## Fleischigkeit 
+
+### Kälbermast
+
+```{r, echo=TRUE, results=FALSE}
+lm_ccc_model <- lm(ccco ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_ccc_model)
+```
+
+### Natura-Veal
+
+```{r, echo=TRUE, results=FALSE}
+lm_cccn_model <- lm(cccn ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cccn_model)
+```
+
+## Schlachtgewicht
+
+### Kälbermast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwc_model <- lm(cwco ~ sex + abattoir + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwc_model)
+```
+
+### Natura-Veal
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwcn_model <- lm(cwcn ~ sex + abattoir + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwcn_model)
+```
+
+## Fettabdeckung
+
+### Kälbermast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfc_model <- lm(cfco ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfc_model)
+```
+
+### Natura-Veal
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfcn_model <- lm(cfcn ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfcn_model)
+```
+
+## Schlachtalter
+
+### Kälbermast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cac_model <- lm(caco ~ sex + abattoir + yearsaison, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cac_model)
+```
+### Natura-Veal
+
+```{r, echo=TRUE, results=FALSE}
+lm_cacn_model <- lm(cacn ~ sex + abattoir + yearsaison, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cacn_model)
+```

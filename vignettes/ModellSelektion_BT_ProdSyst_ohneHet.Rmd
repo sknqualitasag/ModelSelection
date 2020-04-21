@@ -1,0 +1,158 @@
+---
+title: "Modell Selektion Banktiere"
+author: "Sophie Kunz"
+date: "25 Februar 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Background Infos
+Document: https://charlotte-ngs.github.io/GELASMSS2019/sol/w11/gel-w09-sol01.pdf
+
+# Let's try package olsrr
+
+```{r, include=FALSE}
+### # Read dataset
+s_data_file <- "../../work/Sample_ForModellSelektion_Produktionssystem/mix99_fleisch.dat"
+tbl_data <- readr::read_delim(file = s_data_file, delim = " ")
+
+library(dplyr)
+tbl_data <- tbl_data %>% select(-c(herdyear,herd,calfcull,controlcull,ageVK,slaughterCategory,branding,ccco,ccvo,cwco,cwvo,cfco,cfvo,caco,cavo))
+
+### # Convert all fixed effects info factors
+tbl_data$sex <- as.factor(tbl_data$sex)
+tbl_data$abattoir <- as.factor(tbl_data$abattoir)
+tbl_data$classifier <- as.factor(tbl_data$classifier)
+tbl_data$yearsaison <- as.factor(tbl_data$yearsaison)
+str(tbl_data)
+```
+## Fleischigkeit 
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cca_model <- lm(ccao ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cca_model)
+```
+
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_ccan_model <- lm(ccan ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_ccan_model)
+```
+
+### SwissPrimBeef
+
+```{r, echo=TRUE, results=FALSE}
+lm_ccas_model <- lm(ccas ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_ccas_model)
+```
+
+## Schlachtgewicht
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwa_model <- lm(cwao ~ sex + abattoir + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwa_model)
+```
+
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwan_model <- lm(cwan ~ sex + abattoir + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwan_model)
+```
+
+### SwissPrimBeef
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwas_model <- lm(cwas ~ sex + abattoir + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwas_model)
+```
+
+## Fettabdeckung
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfa_model <- lm(cfao ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfa_model)
+```
+
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfan_model <- lm(cfan ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfan_model)
+```
+
+### SwissPrimBeef
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfas_model <- lm(cfas ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfas_model)
+```
+
+## Schlachtalter 
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_caa_model <- lm(caao ~ sex + abattoir + yearsaison, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_caa_model)
+```
+
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_caan_model <- lm(caan ~ sex + abattoir + yearsaison, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_caan_model)
+```
+
+### SwissPrimBeef
+
+```{r, echo=TRUE, results=FALSE}
+lm_caas_model <- lm(caas ~ sex + abattoir + yearsaison, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_caas_model)
+```

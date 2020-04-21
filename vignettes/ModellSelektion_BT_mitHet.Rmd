@@ -1,0 +1,142 @@
+---
+title: "Modell Selektion Banktiere Heterosis"
+author: "Sophie Kunz"
+date: "6 Mars 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Background Infos
+Document: https://charlotte-ngs.github.io/GELASMSS2019/sol/w11/gel-w09-sol01.pdf
+
+# Let's try package olsrr
+
+```{r, include=FALSE}
+### # Read dataset
+s_data_file <- "../../work/Sample_ForModellSelektion_Produktionssystem_Het/fleisch.out"
+tbl_data <- readr::read_delim(file = s_data_file, delim = " ")
+rm(s_data_file)
+
+library(dplyr)
+tbl_data <- tbl_data %>% select(-c(herdyear,herd,calfcull,controlcull,ageVK,slaughterCategory,branding,cccn,ccco,ccvo,ccvn,cwcn,cwco,cwvn,cwvo,cfcn,cfco,cfvn,cfvo,cacn,caco,cavn,cavo))
+
+### # Convert all fixed effects info factors
+tbl_data$sex <- as.factor(tbl_data$sex)
+tbl_data$abattoir <- as.factor(tbl_data$abattoir)
+tbl_data$classifier <- as.factor(tbl_data$classifier)
+tbl_data$yearsaison <- as.factor(tbl_data$yearsaison)
+tbl_data$Effekt_HeterosisSumHet <- as.factor(tbl_data$Effekt_HeterosisSumHet)
+tbl_data$Effekt_RekombinationSumRec <- as.factor(tbl_data$Effekt_RekombinationSumRec)
+str(tbl_data)
+```
+
+## Fleischigkeit
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cca_model <- lm(ccao ~ sex + abattoir + classifier + yearsaison + Effekt_HeterosisSumHet + Effekt_RekombinationSumRec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cca_model)
+```
+
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_ccan_model <- lm(ccan ~ sex + abattoir + classifier + yearsaison + Effekt_HeterosisSumHet + Effekt_RekombinationSumRec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_ccan_model)
+```
+
+### SwissPrimBeef/NaturaFarm
+
+```{r, echo=TRUE, results=FALSE}
+lm_ccas_model <- lm(ccas ~ sex + abattoir + classifier + yearsaison + Effekt_HeterosisSumHet + Effekt_RekombinationSumRec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_ccas_model)
+```
+
+## Schlachtgewicht
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwa_model <- lm(cwao ~ sex + abattoir + yearsaison + Effekt_HeterosisSumHet + Effekt_RekombinationSumRec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwa_model)
+```
+
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwan_model <- lm(cwan ~ sex + abattoir + yearsaison + Effekt_HeterosisSumHet + Effekt_RekombinationSumRec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwan_model)
+```
+
+### SwissPrimBeef
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwas_model <- lm(cwas ~ sex + abattoir + yearsaison + Effekt_HeterosisSumHet + Effekt_RekombinationSumRec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwas_model)
+```
+
+## Fettabdeckung
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfa_model <- lm(cfao ~ sex + abattoir + classifier + yearsaison + Effekt_HeterosisSumHet + Effekt_RekombinationSumRec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfa_model)
+```
+
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfan_model <- lm(cfan ~ sex + abattoir + classifier + yearsaison + Effekt_HeterosisSumHet + Effekt_RekombinationSumRec + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfan_model)
+```
+
+## Schlachtalter
+
+### Grossviehmast
+
+```{r, echo=TRUE, results=FALSE}
+lm_caa_model <- lm(caao ~ sex + abattoir + yearsaison + Effekt_HeterosisSumHet + Effekt_RekombinationSumRec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_caa_model)
+```
+
+### Natura-Beef
+
+```{r, echo=TRUE, results=FALSE}
+lm_caan_model <- lm(caan ~ sex + abattoir + yearsaison + Effekt_HeterosisSumHet + Effekt_RekombinationSumRec, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_caan_model)
+```

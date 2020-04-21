@@ -1,0 +1,56 @@
+---
+title: "Modell Selektion Banktiere"
+author: "Sophie Kunz"
+date: "25 Februar 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Background Infos
+Document: https://charlotte-ngs.github.io/GELASMSS2019/sol/w11/gel-w09-sol01.pdf
+
+# Let's try package olsrr
+
+```{r, include=FALSE}
+### # Read dataset
+s_data_file <- "../../work/Sample_ForModellSelektionLM/mix99_fleisch.dat"
+tbl_data <- readr::read_delim(file = s_data_file, delim = " ")
+
+library(dplyr)
+tbl_data <- tbl_data %>% select(-c(herdyear,herd,calfcull,controlcull,ageVK,slaughterCategory,branding,ccco,ccvo,cwco,cwvo,cfco,cfvo,caco,cavo))
+
+### # Convert all fixed effects info factors
+tbl_data$sex <- as.factor(tbl_data$sex)
+tbl_data$abattoir <- as.factor(tbl_data$abattoir)
+tbl_data$classifier <- as.factor(tbl_data$classifier)
+tbl_data$yearsaison <- as.factor(tbl_data$yearsaison)
+str(tbl_data)
+```
+
+```{r, echo=TRUE, results=FALSE}
+lm_cca_model <- lm(ccao ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cca_model)
+```
+
+```{r, echo=TRUE, results=FALSE}
+lm_cwa_model <- lm(cwao ~ sex + abattoir + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cwa_model)
+```
+
+```{r, echo=TRUE, results=FALSE}
+lm_cfa_model <- lm(cfao ~ sex + abattoir + classifier + yearsaison + age + ageQuadrat, data = tbl_data)
+```
+
+```{r}
+olsrr::ols_step_backward_aic(lm_cfa_model)
+```
+
