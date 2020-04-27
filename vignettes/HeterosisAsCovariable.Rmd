@@ -1,0 +1,68 @@
+---
+title: "HeterosisAsCovariable"
+author: "Sophie Kunz"
+date: "21 April 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE, warning=FALSE}
+### # Libraries
+require(dplyr)
+require(ggplot2)
+```
+
+```{r, include=FALSE}
+### # Read Output codeEffHetRec
+s_data_path <- "../../../work_ModellSelektion_optimiz/fleisch.out"
+tbl_data <- readr::read_delim(file = s_data_path, delim = " ")
+### # Remove and rename some columns
+tbl_data <- tbl_data %>% select(-c(herdyear,herd,calfcull,controlcull,ageVK,slaughterCategory,branding,ccvn,ccvo,cwvn,cwvo,cfvn,cfvo,cavn,cavo))
+names(tbl_data)[30] <- "het"
+names(tbl_data)[31] <- "rec"
+tbl_data <- tbl_data %>% filter(ccao != 0)
+```
+
+# Plot Heterosis und Rekombination allgemein
+
+```{r, include=FALSE}
+### # Read Output calcHetRec
+s_hetrec <- "../../../work_ModellSelektion_optimiz/hetRecRed.csv"
+tbl_hetrec <- readr::read_delim(file = s_hetrec, delim = ";")
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(tbl_hetrec, aes(x=SumHet))+
+  geom_histogram(bins = 30)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+ggplot(tbl_hetrec, aes(x=SumRec))+
+  geom_histogram(bins = 30)
+```
+
+# Spezifisch Grossviehmast
+
+## Fleischigkeit 
+```{r, echo=FALSE}
+ggplot(tbl_data, aes(x=ccao, y=het)) +
+  geom_point()
+```
+
+## Fettabdeckung 
+```{r, echo=FALSE}
+ggplot(tbl_data, aes(x=cfao, y=het)) +
+  geom_point()
+```
+
+## Schlachtgewicht 
+```{r, echo=FALSE}
+ggplot(tbl_data, aes(x=cwao, y=het)) +
+  geom_point()
+```
+
+Es ist ersichtlich, dass Heterosis hat kein Zusammenhang mit den verschiedene Merkmale, deswegen sollte es nicht als Covariable betrachtet werden.

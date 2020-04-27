@@ -1,0 +1,113 @@
+---
+title: "Check_optimiz_HetORBreedcomb"
+author: "Sophie Kunz"
+date: "21 April 2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+# Analyse Daten
+
+```{r, include=FALSE}
+### # Read dataset
+s_data_file <- "../../../work_ModellSelektion_optimiz/fleisch.out"
+tbl_data <- readr::read_delim(file = s_data_file, delim = " ")
+rm(s_data_file)
+tbl_data <- tbl_data %>% select(-c(herdyear,herd,calfcull,controlcull,ageVK,slaughterCategory,branding,ccvn,ccvo,cwvn,cwvo,cfvn,cfvo,cavn,cavo))
+names(tbl_data)[30] <- "het"
+names(tbl_data)[31] <- "rec"
+
+
+### # Convert all fixed effects info factors
+tbl_data$sex <- as.factor(tbl_data$sex)
+tbl_data$abattoir <- as.factor(tbl_data$abattoir)
+tbl_data$classifier <- as.factor(tbl_data$classifier)
+tbl_data$yearsaison <- as.factor(tbl_data$yearsaison)
+tbl_data$breedcomb <- as.factor(tbl_data$breedcomb)
+tbl_data$prodsystem <- as.factor(tbl_data$prodsystem)
+tbl_data$het <- as.factor(tbl_data$het)
+tbl_data$rec <- as.factor(tbl_data$rec)
+str(tbl_data)
+```
+
+Anzahl pro Produktionssystem der Stichprobe nach Anteil vom gesamten Datensatz:
+
+```{r}
+#Grossviehmast
+tbl_data %>% filter(ccao != 0) %>% tally()
+```
+```{r}
+#Natura-Beef
+tbl_data %>% filter(ccan != 0) %>% tally()
+```
+```{r}
+#SwissPrimBeef
+tbl_data %>% filter(ccas != 0) %>% tally()
+```
+
+```{r}
+#Kälbermast
+tbl_data %>% filter(ccco != 0) %>% tally()
+```
+
+```{r}
+#Natura-Veal
+tbl_data %>% filter(cccn != 0) %>% tally()
+```
+
+# Analyse Effekt
+
+## Heterosis Besetzung
+
+```{r}
+#Grossviehmast
+tbl_data %>% filter(ccao != 0) %>% group_by(het) %>% count()
+```
+
+Irgendetwas ist komisch bei der Besetzung von Heterosis für Grossviehmast. Die meisten sind im Effekt-Code 1. In diesem Effekt gemäss das Programm codeEff_HetRec.f90 sind die Tiere darein wo kein Heterosiskoeffizient gerechnet werden konnte. Die Frage ist nun wieso?
+
+Um nachvollziehen zu können, braucht es ein paar Tiere, welche in diesem Effekt-Code 1 sind:
+
+```{r}
+tbl_data %>% filter(ccao != 0) %>% filter(het == 1) %>% select(ind, het) %>% head()
+```
+
+Der Fehler lag im prepDataVCE_optimiz.sh Linie 327. Es sind die falsche Spalten "SumHet;SumRec" rausgeschrieben worden.
+
+## Yearsaison für Natura-Veal
+
+### Fleischigkeit
+```{r}
+tbl_nv <- tbl_data %>% filter(cccn != 0)
+ggplot(tbl_nv, aes(x=yearsaison, y=cccn)) +
+  geom_boxplot()
+```
+
+### Fettabdeckung
+
+```{r}
+ggplot(tbl_nv, aes(x=yearsaison, y=cfcn)) +
+  geom_boxplot()
+```
+
+### Schlachtgewicht
+
+```{r}
+ggplot(tbl_nv, aes(x=yearsaison, y=cwcn)) +
+  geom_boxplot()
+```
+
+### Schlachtalter
+```{r}
+ggplot(tbl_nv, aes(x=yearsaison, y=cacn)) +
+  geom_boxplot()
+```
+
