@@ -37,6 +37,8 @@ generate_output_backAIC <- function(psInputFile,
     lm_model <- lm(as.formula(paste(psTrait, "~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec")), data = psInputFile)
   }
 
+  summary(lm_model)
+
   # Check the model with the function 'ols_step_backward_aic' of the Rpackage olsrr
   k <- olsrr::ols_step_backward_aic(lm_model)
   model <- paste(format(lm_model$terms)[1],format(lm_model$terms)[2],sep = "")
