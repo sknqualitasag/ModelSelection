@@ -51,6 +51,7 @@ running_ms_carcass <- function(psInputFile,
                     "cacn","caco","caan","caas","caao")
 
   for(mrkml in Merkmal_oCov){
+    cat("mrkml: ", mrkml,"\n")
     ModelSelection::generate_output_backAIC(psInputFile = tbl_inputFile,
                                             psTrait = mrkml,
                                             psOutputPath = psOutputPath,
