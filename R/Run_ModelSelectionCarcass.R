@@ -14,6 +14,11 @@ running_ms_carcass <- function(psInputFile,
                                psOutputPath,
                                psSampleID){
 
+  suppressPackageStartupMessages(if(! require("dplyr")) {
+    install.packages("dplyr", repos="https://stat.ethz.ch/CRAN/")
+    require("dplyr")
+  })
+
   ### # check parameters
   if(is.null(psInputFile)) {
     stop("--missingDataFile has not been specified")
