@@ -30,6 +30,10 @@ generate_output_backAIC <- function(psInputFile,
 
   tbl_data <- psInputFile
 
+  print(psTrait)
+  print(psTraitComment)
+  print(colnames(tbl_data))
+
   # Build a model
   # With age as covariable
   if(psTraitComment == "mCov"){
