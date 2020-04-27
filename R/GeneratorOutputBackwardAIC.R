@@ -28,19 +28,23 @@ generate_output_backAIC <- function(psInputFile,
     stop("--missingDataFile has not been specified")
   }
 
+  tbl_data <- psInputFile
+
   # Build a model
   # With age as covariable
   if(psTraitComment == "mCov"){
-    lm_model <- lm(as.formula(paste(psTrait, "~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat")), data = psInputFile)
+    lm_model <- lm(as.formula(paste(psTrait, "~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat")), data = tbl_data)
   }else{
     #Without age as covariable
-    lm_model <- lm(as.formula(paste(psTrait, "~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec")), data = psInputFile)
+    lm_model <- lm(as.formula(paste(psTrait, "~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec")), data = tbl_data)
   }
 
   print(summary(lm_model))
 
   # Check the model with the function 'ols_step_backward_aic' of the Rpackage olsrr
   k <- olsrr::ols_step_backward_aic(lm_model)
+  print(k)
+
   model <- paste(format(lm_model$terms)[1],format(lm_model$terms)[2],sep = "")
   optimumaic <- k$aics[length(k$predictors)+1]
 
