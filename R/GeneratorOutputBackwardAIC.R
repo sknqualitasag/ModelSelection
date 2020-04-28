@@ -6,16 +6,16 @@
 
 #' @title Generate an output for result of step backward for carcass
 #'
-#' @param psInputFile
+#' @param psDataFile
 #' @param psTrait
-#' @param psOutputPath
-#' @param psSampleID
+#' @param psOutputDir
+#' @param psSampleNUM
 #' @param psTraitComment
 #' @export generate_output_backAIC
-generate_output_backAIC <- function(psInputFile,
+generate_output_backAIC <- function(psDataFile,
                                     psTrait,
-                                    psOutputPath,
-                                    psSampleID,
+                                    psOutputDir,
+                                    psSampleNUM,
                                     psTraitComment){
 
   suppressPackageStartupMessages(if(! require("dplyr")) {
@@ -24,42 +24,32 @@ generate_output_backAIC <- function(psInputFile,
   })
 
   ### # check parameters
-  if(is.null(psInputFile)) {
+  if(is.null(psDataFile)) {
     stop("--missingDataFile has not been specified")
   }
-
-  tbl_data <- psInputFile
-
-  print(psTrait)
-  print(psTraitComment)
-  print(colnames(tbl_data))
 
   # Build a model
   # With age as covariable
   if(psTraitComment == "mCov"){
-    lm_model <- lm(as.formula(paste(psTrait, "~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat")), data = tbl_data)
+    lm_model <- lm(as.formula(paste(psTrait, "~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec + age + ageQuadrat")), data = psDataFile)
   }else{
     #Without age as covariable
-    lm_model <- lm(as.formula(paste(psTrait, "~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec")), data = tbl_data)
+    lm_model <- lm(as.formula(paste(psTrait, "~ sex + abattoir + classifier + yearsaison + breedcomb + het + rec")), data = psDataFile)
   }
-
-  print(summary(lm_model))
 
   # Check the model with the function 'ols_step_backward_aic' of the Rpackage olsrr
   k <- olsrr::ols_step_backward_aic(lm_model)
-  print(k)
-
   model <- paste(format(lm_model$terms)[1],format(lm_model$terms)[2],sep = "")
   optimumaic <- k$aics[length(k$predictors)+1]
 
   # Build a tibble as output
   # With age as covariable
   if(psTraitComment == "mCov"){
-    tibble_output <- tibble::tibble(psSampleID, psTrait, psTraitComment, model, AIC = optimumaic, sex = 1, abattoir = 1, classifier = 1,
+    tibble_output <- tibble::tibble(psSampleNUM, psTrait, psTraitComment, model, AIC = optimumaic, sex = 1, abattoir = 1, classifier = 1,
                                     age = 1, ageQuadrat = 1, yearsaison = 1, breedcomb = 1, het = 1, rec = 1)
   }else{
     #Without age as covariable
-    tibble_output <- tibble::tibble(psSampleID, psTrait, psTraitComment, model, AIC = optimumaic, sex = 1, abattoir = 1, classifier = 1,
+    tibble_output <- tibble::tibble(psSampleNUM, psTrait, psTraitComment, model, AIC = optimumaic, sex = 1, abattoir = 1, classifier = 1,
                                     age = NA, ageQuadrat = NA, yearsaison = 1, breedcomb = 1, het = 1, rec = 1)
   }
 
@@ -74,6 +64,6 @@ generate_output_backAIC <- function(psInputFile,
   }
 
   # Write tibble-Output in a file
-  readr::write_csv(x = tibble_output, path = paste(psOutputPath,paste(psSampleID,psTrait,psTraitComment,sep = "_"),".csv",sep = ""))
+  readr::write_csv(x = tibble_output, path = paste(psOutputDir,paste(psSampleNUM,psTrait,psTraitComment,sep = "_"),".csv",sep = ""))
 
 }

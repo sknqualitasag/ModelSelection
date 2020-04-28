@@ -42,8 +42,6 @@ running_ms_carcass <- function(psInputFile,
   tbl_data$het <- as.factor(tbl_data$het)
   tbl_data$rec <- as.factor(tbl_data$rec)
 
-  tbl_inputFile <- tbl_data
-
   ### # All trait without covariable age and ageQuadrat
   Merkmal_oCov <- c("cccn","ccco","ccan","ccas","ccao",
                     "cwcn","cwco","cwan","cwas","cwao",
@@ -52,10 +50,10 @@ running_ms_carcass <- function(psInputFile,
 
   for(mrkml in Merkmal_oCov){
     cat("mrkml: ", mrkml,"\n")
-    ModelSelection::generate_output_backAIC(psInputFile = tbl_inputFile,
+    ModelSelection::generate_output_backAIC(psDataFile = tbl_data,
                                             psTrait = mrkml,
-                                            psOutputPath = psOutputPath,
-                                            psSampleID = psSampleID,
+                                            psOutputDir = psOutputPath,
+                                            psSampleNUM = psSampleID,
                                             psTraitComment = "oCov")
   }
 
@@ -66,10 +64,10 @@ running_ms_carcass <- function(psInputFile,
 
 
   for(mrkml in Merkmal_mCov){
-    ModelSelection::generate_output_backAIC(psInputFile = tbl_inputFile,
+    ModelSelection::generate_output_backAIC(psDataFile = tbl_data,
                                             psTrait = mrkml,
-                                            psOutputPath = psOutputPath,
-                                            psSampleID = psSampleID,
+                                            psOutputDir = psOutputPath,
+                                            psSampleNUM = psSampleID,
                                             psTraitComment = "mCov")
   }
 

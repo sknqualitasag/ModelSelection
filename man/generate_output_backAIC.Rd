@@ -4,7 +4,7 @@
 \alias{generate_output_backAIC}
 \title{Generate an output for result of step backward for carcass}
 \usage{
-generate_output_backAIC(psInputFile, psTrait, psOutputPath, psSampleID,
+generate_output_backAIC(psDataFile, psTrait, psOutputDir, psSampleNUM,
   psTraitComment)
 }
 \description{

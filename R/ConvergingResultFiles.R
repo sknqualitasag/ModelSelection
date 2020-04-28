@@ -35,8 +35,8 @@ convergingResults_perSample_backAIC <- function(psDirectory,
 #' @param psSubdirectories
 #' @param psOutputFile
 #' @export convergingResults_backAIC
-convergingResults_backAIC <- function(psDirectory = psDirectory,
-                                      psSubdirectories = psSubdirectories,
+convergingResults_backAIC <- function(psDirectory,
+                                      psSubdirectories,
                                       psOutputFile){
   ### # check parameters
   if(is.null(psDirectory)) {
