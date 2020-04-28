@@ -4,11 +4,8 @@
 \alias{convergingResults_backAIC}
 \title{Converging result-files of step backward aic in one overall result-file}
 \usage{
-convergingResults_backAIC(
-  psDirectory = psDirectory,
-  psSubdirectories = psSubdirectories,
-  psOutputFile
-)
+convergingResults_backAIC(psDirectory = psDirectory,
+  psSubdirectories = psSubdirectories, psOutputFile)
 }
 \description{
 Converging result-files of step backward aic in one overall result-file
