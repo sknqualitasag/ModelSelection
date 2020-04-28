@@ -38,8 +38,10 @@
 #'
 #' @param pvec_sample vector of paths to data samples
 #' @param ps_response name of the response variable
+#' @param pvec_ignoring_columns vector of columns to ignore
+#' @param pvec_fixeffect_columns vector of columns as fixed effects
 #' @export collect_ols_results
-collect_ols_results <- function(pvec_sample, ps_response, pvec_ignoring_columns){
+collect_ols_results <- function(pvec_sample, ps_response, pvec_ignoring_columns, pvec_fixeffect_columns){
 
   suppressPackageStartupMessages(if(! require("dplyr")) {
     install.packages("dplyr", repos="https://stat.ethz.ch/CRAN/")
@@ -53,6 +55,10 @@ collect_ols_results <- function(pvec_sample, ps_response, pvec_ignoring_columns)
   # check that ps_response is in colnames(tbl_first_sample)
   if (!ps_response %in% colnames(tbl_first_sample))
     stop(" * ERROR: Cannot find response variable: ", ps_response, " in columnnames of first sample.")
+  # Distinguish between fix effects (as.factor) and covariables (still numeric)
+  for(fx in pvec_fixeffect_columns){
+    tbl_first_sample[[fx]] <- as.factor(tbl_first_sample[[fx]])
+  }
   # determine the predictors from column of first sample
   vec_pred <- setdiff(names(tbl_first_sample), ps_response)
   # the vector of column names of the result tibble
