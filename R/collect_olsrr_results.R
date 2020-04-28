@@ -39,9 +39,17 @@
 #' @param pvec_sample vector of paths to data samples
 #' @param ps_response name of the response variable
 #' @export collect_ols_results
-collect_ols_results <- function(pvec_sample, ps_response){
+collect_ols_results <- function(pvec_sample, ps_response, pvec_ignoring_columns){
+
+  suppressPackageStartupMessages(if(! require("dplyr")) {
+    install.packages("dplyr", repos="https://stat.ethz.ch/CRAN/")
+    require("dplyr")
+  })
+
   # read the first sample
   tbl_first_sample <- readr::read_csv(file = pvec_sample[1], col_types = readr::cols())
+  # ignore some columns
+  tbl_first_sample <- tbl_first_sample %>% select(-c(pvec_ignoring_columns))
   # check that ps_response is in colnames(tbl_first_sample)
   if (!ps_response %in% colnames(tbl_first_sample))
     stop(" * ERROR: Cannot find response variable: ", ps_response, " in columnnames of first sample.")
