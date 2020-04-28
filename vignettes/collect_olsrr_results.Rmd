@@ -1,0 +1,132 @@
+---
+title: "Collect Model Selection Results"
+output:
+  rmarkdown::html_vignette: default
+  rmarkdown::pdf_document: default
+vignette: >
+  %\VignetteIndexEntry{Collect Model Selection Results}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ModelSelection)
+```
+
+
+# Hintergrund
+Modellselektion bestimmt aus einer Menge von möglichen fixen Effekte und Covariablen diejenigen Elemente, welche für die Erklärung der Variablität in der Zielvariablen einen wichtigen Beitrag leisten. Diese wichtigen fixen Effekte und Covariablen werden in den gemischten linearen Modelle für die Varianzkomponentenschätzung und die Zuchtwertschätzung verwendet.
+
+Varianzkomponenten werden häufig basierend auf Stichproben geschätzt. Die resultierenden Varianzkomponenten geschätzt aufgrund der Stichproben werden gemittelt. Somit kann es auch Sinn machen die Modellselektion für die einzelnen Stichproben zu machen.
+
+Diese Vignette soll zeigen, wie Resultate aus verschiedenen Modellselektionsprozessen kombiniert werden können.
+
+
+# Vorbereitung
+Wir nehmen an, dass aus einem bestehenden Datensatz ein Anzahl von Stichproben gezogen werden, Diese liegen in Form von separaten Inputdateien im csv-Format vor.
+
+```{r}
+n_nr_sample <- 10
+n_sample_size <- 30
+
+# samples from mtcars and write samples to files in tmpdir
+tmpdir <- tempdir()
+cat(" * Sample directory: ", tmpdir, "\n")
+vec_sample_files <- sapply(1:n_nr_sample, 
+                           function(x) paste0("mtcars_sample_", x, ".csv", collapse = ""), 
+                           USE.NAMES = FALSE)
+vec_sample_path <- file.path(tmpdir, vec_sample_files)
+set.seed(321)
+for (i in 1:n_nr_sample){
+  cat(" * Generate sample ", i, " ...\n")
+  cur_sample <- dplyr::sample_n(mtcars, n_sample_size, replace = TRUE)
+  readr::write_csv(cur_sample, path = vec_sample_path[i])
+}
+```
+
+
+# Modellselektion
+In den vorliegenden Stichproben werden nun Modellselektion gemacht und die Resultate werden in einer Tabelle zusammengefasst. Als erstes müssen wir die Zielgrösse bestimmen. Wir nehmen hier an, dass die restlichen Variablen in den Stichprobendatensätzen sind fixe Effekte oder Kovariablen.  
+
+```{r}
+# first sample to determine the column names of the result tibble
+tbl_cur_sample <- readr::read_csv(file = vec_sample_path[1])
+s_response <- "mpg"
+vec_pred <- setdiff(names(tbl_cur_sample), s_response)
+# vector of column names
+vec_col <- c("(Intercept)", vec_pred)
+# Modellselektion
+formula.full <- as.formula(paste( s_response, paste0(vec_pred, collapse = " + "), sep = " ~ "))
+lm.full <- lm(formula = formula.full, data = tbl_cur_sample)
+(k <- olsrr::ols_step_backward_aic(model = lm.full))
+# collect results
+# res[1, names(coefficients(k$model))] <- 1
+```
+
+Die Zusammenstellung der Resultate der Modellselektion über eine Anzahl von Samples wird in der folgenden Funktion gemacht. 
+
+
+```{r, eval=FALSE}
+collect_ols_results <- function(pvec_sample, ps_response){
+  # read the first sample
+  tbl_first_sample <- readr::read_csv(file = pvec_sample[1], col_types = readr::cols())
+  # check that ps_response is in colnames(tbl_first_sample)
+  if (!ps_response %in% colnames(tbl_first_sample))
+    stop(" * ERROR: Cannot find response variable: ", ps_response, " in columnnames of first sample.")
+  # determine the predictors from column of first sample
+  vec_pred <- setdiff(names(tbl_first_sample), ps_response)
+  # the vector of column names of the result tibble
+  vec_col <- c("SampleID", "(Intercept)", vec_pred, "AIC")
+  
+  # determine the number of samples
+  n_nr_sample <- length(pvec_sample)
+  # initialise the result tibble
+  tbl_result <- tibble::as_tibble(matrix(0, nrow = n_nr_sample, ncol = length(vec_col)))
+  colnames(tbl_result) <- vec_col
+
+  # specify the formula for the full model
+  formula.full <- as.formula(paste( ps_response, paste0(vec_pred, collapse = " + "), sep = " ~ "))
+
+  # loop over the samples and do the model selection
+  for (sidx in seq_along(pvec_sample)){
+    tbl_cur_sample <- readr::read_csv(file = pvec_sample[sidx], col_types = readr::cols())
+    lm.full.cur <- lm(formula = formula.full, data = tbl_cur_sample)
+    ols_result <- olsrr::ols_step_backward_aic(model = lm.full.cur)
+    tbl_result[sidx, names(coefficients(ols_result$model))] <- 1
+    tbl_result[sidx, "AIC"] <- ols_result$aics[length(ols_result$aics)]
+    tbl_result[sidx, "SampleID"] <- sidx
+  }
+  
+  # return the resulting tibble    
+  return(tbl_result)  
+}
+```
+
+The above function is tested by the following call
+
+```{r}
+tbl_ols_result <- collect_ols_results(pvec_sample = vec_sample_path, ps_response = "mpg")
+knitr::kable(tbl_ols_result)
+```
+
+
+# Clean Up
+Die Datenfiles mit den Stichproben brauchen wir nicht mehr. 
+
+```{r}
+fs::file_delete(path = file.path(tmpdir, vec_sample_files))
+```
+
+
+# Session Info
+```{r}
+sessioninfo::session_info()
+```
+
