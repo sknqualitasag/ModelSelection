@@ -41,7 +41,7 @@
 #' @param pvec_ignoring_columns vector of columns to ignore
 #' @return tbl_result tibble with model selection results
 #'
-#' @importFrom dplyr `%>%`
+#' @importFrom magrittr `%>%`
 #'
 #' @export collect_ols_results
 collect_ols_results <- function(pvec_sample, ps_response, pvec_ignoring_columns = NULL){
