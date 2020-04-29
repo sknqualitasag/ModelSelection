@@ -147,7 +147,9 @@ vec_sample_dir <- sapply(1:n_nr_sample,
                         function(x) paste0("/Users/skn/muku_Carcass/work_ModellSelektion_optimiz/multibreed_optimize_ForModellSelektion/Sample", x, collapse = ""), 
                         USE.NAMES = FALSE)
 vec_sample_files <- "fleisch.out"
-vec_sample_path <- file.path(vec_sample_dir, vec_sample_files)
+# vec_sample_path <- file.path(vec_sample_dir, vec_sample_files)
+
+vec_sample_path <- system.file("extdata", "sample1","fleisch.out", package = "ModelSelection")
 
 vec_reponse <- c("cccn","ccco","ccan","ccas","ccao",
                   "cwcn","cwco","cwan","cwas","cwao",
@@ -170,8 +172,7 @@ for(mrkml in vec_reponse){
   
   tbl_ols_result <- collect_ols_results(pvec_sample = vec_sample_path,
                                         ps_response = mrkml, 
-                                        pvec_ignoring_columns = setdiff(vec_ignoring_columns, mrkml), 
-                                        pvec_fixeffect_columns = vec_fixeffect_columns)
+                                        pvec_ignoring_columns = setdiff(vec_ignoring_columns, mrkml))
   
   knitr::kable(tbl_ols_result)
   

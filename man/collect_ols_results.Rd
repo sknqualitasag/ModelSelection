@@ -4,7 +4,7 @@
 \alias{collect_ols_results}
 \title{Collect Results from olsrr Modelselection Across Sample Datasets}
 \usage{
-collect_ols_results(pvec_sample, ps_response, pvec_ignoring_columns)
+collect_ols_results(pvec_sample, ps_response, pvec_ignoring_columns = NULL)
 }
 \arguments{
 \item{pvec_sample}{vector of paths to data samples}

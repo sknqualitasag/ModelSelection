@@ -44,12 +44,14 @@
 #' @importFrom dplyr `%>%`
 #'
 #' @export collect_ols_results
-collect_ols_results <- function(pvec_sample, ps_response, pvec_ignoring_columns){
+collect_ols_results <- function(pvec_sample, ps_response, pvec_ignoring_columns = NULL){
 
   # read the first sample
   tbl_first_sample <- read_sample(ps_sample_path = pvec_sample[1])
   # ignore some columns
-  tbl_first_sample <- tbl_first_sample %>% dplyr::select(-c(pvec_ignoring_columns))
+  if (!is.null(pvec_ignoring_columns)){
+    tbl_first_sample <- tbl_first_sample %>% dplyr::select(-c(pvec_ignoring_columns))
+  }
   # check that ps_response is in colnames(tbl_first_sample)
   if (!ps_response %in% colnames(tbl_first_sample))
     stop(" * ERROR: Cannot find response variable: ", ps_response, " in columnnames of first sample.")
