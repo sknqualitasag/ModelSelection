@@ -54,12 +54,7 @@ collect_stepAIC_results <- function(pvec_sample, ps_response,
   # check that ps_response is in colnames(tbl_first_sample)
   if (!ps_response %in% colnames(tbl_first_sample))
     stop(" * ERROR in collect_stepAIC_results: Cannot find response variable: ", ps_response, " in columnnames of first sample.")
-  # Distinguish between fix effects (as.factor) and covariables (still numeric)
-  if (!is.null(pvec_fixeffect_columns)){
-    for(fx in pvec_fixeffect_columns){
-      tbl_first_sample[[fx]] <- as.factor(tbl_first_sample[[fx]])
-    }
-  }
+
   # determine the predictors from column of first sample
   vec_pred <- setdiff(names(tbl_first_sample), ps_response)
   # the vector of column names of the result tibble
@@ -77,7 +72,15 @@ collect_stepAIC_results <- function(pvec_sample, ps_response,
   for (sidx in seq_along(pvec_sample)){
     # reading the current dataset
     tbl_cur_sample <- read_sample(ps_sample_path =  pvec_sample[sidx])
-
+    # check that ps_response is in colnames(tbl_cur_sample)
+    if (!ps_response %in% colnames(tbl_cur_sample))
+      stop(" * ERROR in collect_stepAIC_results: Cannot find response variable: ", ps_response, " in columnnames of current sample.")
+    # Distinguish between fix effects (as.factor) and covariables (still numeric)
+    if (!is.null(pvec_fixeffect_columns)){
+      for(fx in pvec_fixeffect_columns){
+        tbl_cur_sample[[fx]] <- as.factor(tbl_cur_sample[[fx]])
+      }
+    }
     lm.full.cur <- lm(formula = formula.full, data = tbl_cur_sample)
     step_result <- MASS::stepAIC(lm.full.cur, direction = 'backward', trace = pb_trace)
     tbl_result[sidx, labels(terms(step_result))] <- 1
