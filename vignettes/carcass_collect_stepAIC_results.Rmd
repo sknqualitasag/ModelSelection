@@ -1,0 +1,65 @@
+---
+title: "Collecting stepAIC Results"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Collecting stepAIC Results}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ModelSelection)
+```
+
+
+# Hintergrund
+Modellselektion für fixe lineare Modelle wird mit `MASS::stepAIC()` gemacht. Dieses Package bietet Funktionalität zur Zusammenstellung von Modellselektionsresultaten über verschiedene Stichprobendatensätze. 
+
+
+# Funktionalität
+Die Zusammenstellung der Resultate ist in der Funktion `collect_stepAIC_results` umgesetzt. 
+
+
+# Beispiel
+Die Funktion `collect_stepAIC_results` soll am folgenden Beispiel getestet werden.
+
+```{r}
+# get vector with sample data
+vec_sample_path <- c(system.file("extdata", "sample1","fleisch.out", package = "ModelSelection"),
+                     system.file("extdata", "sample2","fleisch.out", package = "ModelSelection"))
+if (!all(file.exists(vec_sample_path)))
+  stop(" * ERROR: Cannot find sample data file: ", vec_sample_path)
+
+# specify a vector with columns to be ignored
+vec_ignoring_columns <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding",
+                          "cccn","ccco","ccan","ccas","ccvn","ccvo",
+                          "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
+                          "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
+                          "cacn","caco","caan","caas","caao","cavn","cavo",
+                          "ind")
+
+# specify a vector of fixed effects
+vec_fixeffect_columns <- c("sex","abattoir","classifier","yearsaison","breedcomb","Effekt_HeterosisSumHet","Effekt_RekombinationSumRec")
+
+# specify response
+s_response <- "ccao"
+
+tbl_collected_results <- collect_stepAIC_results(pvec_sample = vec_sample_path,
+                                                 ps_response = s_response,
+                                                 pvec_ignoring_columns = vec_ignoring_columns,
+                                                 pvec_fixeffect_columns = vec_fixeffect_columns)
+```
+
+The results are shown in the following table
+
+```{r echo=FALSE}
+knitr::kable(tbl_collected_results)
+```
+

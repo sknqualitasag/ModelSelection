@@ -34,7 +34,11 @@ In den vorliegenden Stichproben werden nun Modellselektion gemacht und die Resul
 
 ```{r}
 # first sample to determine the column names of the result tibble
-vec_sample_path <- "../../../work_ModellSelektion_optimiz/multibreed_optimize_ForModellSelektion/Sample1/fleisch.out"
+# vec_sample_path <- "../../../work_ModellSelektion_optimiz/multibreed_optimize_ForModellSelektion/Sample1/fleisch.out"
+vec_sample_path <- system.file("extdata", "sample1","fleisch.out", package = "ModelSelection")
+if (!file.exists(vec_sample_path))
+  stop(" * ERROR: Cannot find sample data file: ", vec_sample_path)
+
 
 # Depending of the file-extension, different reading functions
 if(assertthat::has_extension(path = vec_sample_path, ext = "csv")){

@@ -1,0 +1,97 @@
+---
+title: "Model Selection For Fixed Linear Effect Models"
+date:  "2020-04-28"
+author: "Peter von Rohr"
+output: html_notebook
+---
+
+# Disclaimer
+Experiments and tests on model selection for fixed linear effect models are documented here.
+
+
+# Background
+The first step when including a new trait into a breeding program consists of variance components estimation (VCE). VCE is done with a linear mixed effects model (LME). A LME is determined by fixed effects, covariables and random effects. An open problem that must be solved before doing VCE is the determination of the fixed effects and the covariables. The solution for this is done via a procedure that is called model selection.
+
+
+# Model Selection
+In model selection, fixed linear effect models are compared based on a certain model quality criterion. Possible criteria are 
+
+* Mallow $C_p$
+* AIC
+* BIC
+
+
+# Implementations
+Model selection are implemented in different R-packages. To our knowledge there are 
+
+* `olsrr` and
+* `MASS` with the function `stepAIC`.
+
+
+## Package `olsrr`
+Based on the documentation of `olsrr` available at https://olsrr.rsquaredacademy.com/ it is clear that the package is targeted towards regression model. That means all predictors are covariables. The examples shown in the article https://olsrr.rsquaredacademy.com/articles/variable_selection.html do also show this. Hence for a linear fixed effect model (LFE) with both fixed effects and covariables, this package is most likely not useful. 
+
+We tested `olsrr` in our projects and we encountered difficulties in using functions of `olsrr` for model selection in LFE.
+
+
+## Function `MASS::stepAIC()`
+The restriction of model selection to regression models does not seam to be an issue according to the documentation of `MASS::stepAIC()`.
+
+
+# Recommendation
+Based on the restrictions of `olsrr`, we recommend the use of `MASS::stepAIC()`.
+
+
+# Example
+The use of `MASS::stepAIC()` is tested with an example dataset.
+
+```{r}
+vec_sample_path <- system.file("extdata", "sample1","fleisch.out", package = "ModelSelection")
+if (!file.exists(vec_sample_path))
+  stop(" * ERROR: Cannot find sample data file: ", vec_sample_path)
+
+# Depending of the file-extension, different reading functions
+tbl_cur_sample <- readr::read_delim(file = vec_sample_path, delim = " ", col_types = readr::cols()) 
+
+# Remove some columns should be given as parameter in the function
+vec_ignoring_columns <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding",
+                          "cccn","ccco","ccan","ccas","ccvn","ccvo",
+                          "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
+                          "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
+                          "cacn","caco","caan","caas","caao","cavn","cavo",
+                          "ind")
+require(dplyr)
+tbl_cur_sample <- tbl_cur_sample %>% select(-c(vec_ignoring_columns))
+
+# Convert all fixed effects into factors
+vec_fixeffect_columns <- c("sex","abattoir","classifier","yearsaison","breedcomb","Effekt_HeterosisSumHet","Effekt_RekombinationSumRec")
+for(fx in vec_fixeffect_columns){
+    tbl_cur_sample[[fx]] <- as.factor(tbl_cur_sample[[fx]])
+}
+
+s_response <- "ccao"
+vec_pred <- setdiff(names(tbl_cur_sample), s_response)
+# Modellselektion
+formula.full <- as.formula(paste( s_response, paste0(vec_pred, collapse = " + "), sep = " ~ "))
+lm.full <- lm(formula = formula.full, data = tbl_cur_sample)
+
+# model selection
+stp <- MASS::stepAIC(lm.full)
+```
+
+
+# Results
+The results that are interesting are obtained from 
+
+```{r}
+labels(terms(stp))
+```
+
+which gives the terms of the final model. 
+
+```{r}
+stp$anova$AIC
+```
+
+returns a vector of AIC-values for all selection steps.
+
