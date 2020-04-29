@@ -3,7 +3,7 @@ title: "Collecting stepAIC Results Carcass With Covariables"
 output: rmarkdown::html_vignette
 params:
   dir: ""
-  num_sample:""
+  num_sample: ""
 vignette: >
   %\VignetteIndexEntry{Collecting stepAIC Results}
   %\VignetteEngine{knitr::rmarkdown}
