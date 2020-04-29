@@ -4,12 +4,7 @@
 \alias{collect_ols_results}
 \title{Collect Results from olsrr Modelselection Across Sample Datasets}
 \usage{
-collect_ols_results(
-  pvec_sample,
-  ps_response,
-  pvec_ignoring_columns,
-  pvec_fixeffect_columns
-)
+collect_ols_results(pvec_sample, ps_response, pvec_ignoring_columns)
 }
 \arguments{
 \item{pvec_sample}{vector of paths to data samples}
@@ -17,11 +12,11 @@ collect_ols_results(
 \item{ps_response}{name of the response variable}
 
 \item{pvec_ignoring_columns}{vector of columns to ignore}
-
-\item{pvec_fixeffect_columns}{vector of columns as fixed effects}
 }
 \value{
 tbl_result tibble with results of the model selection for each sample.
+
+tbl_result tibble with model selection results
 }
 \description{
 For very large datasets model selection is done on smaller subsamples of the
