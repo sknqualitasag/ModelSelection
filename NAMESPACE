@@ -2,4 +2,5 @@
 
 export(collect_ols_results)
 export(collect_stepAIC_results)
-importFrom(dplyr,"`%>%`")
+importFrom(dplyr,`%>%`)
+importFrom(magrittr,`%>%`)

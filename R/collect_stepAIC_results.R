@@ -38,7 +38,7 @@
 #' @param pb_trace flag to indicate whether stepAIC produced output
 #' @return tbl_result tibble with model selection results
 #'
-#' @importFrom dplyr `%>%`
+#' @importFrom magrittr `%>%`
 #'
 #' @export collect_stepAIC_results
 collect_stepAIC_results <- function(pvec_sample, ps_response,
