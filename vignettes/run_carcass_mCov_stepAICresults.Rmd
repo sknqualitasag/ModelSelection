@@ -3,6 +3,7 @@ title: "Collecting stepAIC Results Carcass With Covariables"
 output: rmarkdown::html_vignette
 params:
   dir: ""
+  num_sample:""
 vignette: >
   %\VignetteIndexEntry{Collecting stepAIC Results}
   %\VignetteEngine{knitr::rmarkdown}
@@ -30,7 +31,7 @@ Modellselektion für Schlachtmerkmale unterteilt nach Produktionssystem, wobei S
 ## Fleischigkeit und Fettabdeckung
 ```{r, echo=FALSE}
 # get vector with sample data
-n_nr_sample <- 16
+n_nr_sample <- params$num_sample
 s_dir_path <- params$dir
 vec_sample_dir <- sapply(1:n_nr_sample, 
                         function(x) paste0(s_dir_path,"/Sample", x, collapse = ""), 
