@@ -28,6 +28,26 @@ Modellselektion für fixe lineare Modelle wird mit `MASS::stepAIC()` gemacht. Di
 # Anwendung
 Modellselektion für Schlachtmerkmale unterteilt nach Produktionssystem, wobei Schlachtalter als Covariable enthaltet ist.
 
+Die zwei ersten Buchstaben:
+
+* cc = carcass conformation (Fleischigkeit)
+
+* cf = carcass fat (Fettabdeckung)
+
+* cw = carcass weight (Schlachtgewicht)
+
+Die zwei letzten Buchstaben:
+
+* cn = Natura-Veal
+
+* co = Kälbermast
+
+* an = Natura-Beef
+
+* as = SwissPrimBeef&NaturaFarm
+
+* ao = Grossviehmast
+
 ## Fleischigkeit und Fettabdeckung
 ```{r, echo=FALSE}
 # get vector with sample data
@@ -74,7 +94,7 @@ for(s_response in vec_reponse){
 
 Im Gegensatz zu Fleischigkeit und Fettabdeckung enthält das Schlachtgewicht keine Klassifierer als fixen Effekt.
 
-```{r}
+```{r, echo=FALSE}
 # specify the traits
 vec_reponse_cw <- c("cwcn","cwco","cwan","cwas","cwao")
 # specify a vector with columns to be ignored

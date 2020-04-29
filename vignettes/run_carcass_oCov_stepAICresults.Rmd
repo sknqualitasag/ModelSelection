@@ -26,7 +26,30 @@ library(ModelSelection)
 Modellselektion für fixe lineare Modelle wird mit `MASS::stepAIC()` gemacht. Dieses Package bietet Funktionalität zur Zusammenstellung von Modellselektionsresultaten über verschiedene Stichprobendatensätze. Die Zusammenstellung der Resultate ist in der Funktion `collect_stepAIC_results` umgesetzt.
 
 # Anwendung
-Modellselektion für Schlachtmerkmale unterteilt nach Produktionssystem, wobei keine Covariable für das Schlachtalter enthaltet ist.
+Modellselektion für Schlachtmerkmale unterteilt nach Produktionssystem, wobei keine Covariable für das Schlachtalter da es selber als Merkmal enthaltet ist.
+
+Die zwei ersten Buchstaben:
+
+* cc = carcass conformation (Fleischigkeit)
+
+* cf = carcass fat (Fettabdeckung)
+
+* cw = carcass weight (Schlachtgewicht)
+
+* ca = carcass age (Schlachtalter)
+
+Die zwei letzten Buchstaben:
+
+* cn = Natura-Veal
+
+* co = Kälbermast
+
+* an = Natura-Beef
+
+* as = SwissPrimBeef&NaturaFarm
+
+* ao = Grossviehmast
+
 
 ## Fleischigkeit und Fettabdeckung
 ```{r, echo=FALSE}
