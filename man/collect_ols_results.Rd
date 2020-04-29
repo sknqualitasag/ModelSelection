@@ -4,12 +4,8 @@
 \alias{collect_ols_results}
 \title{Collect Results from olsrr Modelselection Across Sample Datasets}
 \usage{
-collect_ols_results(
-  pvec_sample,
-  ps_response,
-  pvec_ignoring_columns,
-  pvec_fixeffect_columns
-)
+collect_ols_results(pvec_sample, ps_response, pvec_ignoring_columns,
+  pvec_fixeffect_columns)
 }
 \arguments{
 \item{pvec_sample}{vector of paths to data samples}
@@ -43,14 +39,14 @@ n_nr_sample <- 10
 n_sample_size <- 30
 # samples from mtcars and write samples to files in tmpdir
 tmpdir <- tempdir()
-cat(" * Sample directory: ", tmpdir, "\n")
+cat(" * Sample directory: ", tmpdir, "\\n")
 vec_sample_files <- sapply(1:n_nr_sample,
                            function(x) paste0("mtcars_sample_", x, ".csv", collapse = ""),
                            USE.NAMES = FALSE)
 vec_sample_path <- file.path(tmpdir, vec_sample_files)
 set.seed(321)
 for (i in 1:n_nr_sample){
-  cat(" * Generate sample ", i, " ...\n")
+  cat(" * Generate sample ", i, " ...\\n")
   cur_sample <- dplyr::sample_n(mtcars, n_sample_size, replace = TRUE)
   readr::write_csv(cur_sample, path = vec_sample_path[i])
 }
