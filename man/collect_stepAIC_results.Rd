@@ -4,13 +4,9 @@
 \alias{collect_stepAIC_results}
 \title{Collect Results From MASS::stepAIC Across Sample Datasets}
 \usage{
-collect_stepAIC_results(
-  pvec_sample,
-  ps_response,
-  pvec_ignoring_columns = NULL,
-  pvec_fixeffect_columns = NULL,
-  pb_trace = FALSE
-)
+collect_stepAIC_results(pvec_sample, ps_response,
+  pvec_ignoring_columns = NULL, pvec_fixeffect_columns = NULL,
+  pb_trace = FALSE)
 }
 \arguments{
 \item{pvec_sample}{vector of paths to sample files}
