@@ -1,0 +1,188 @@
+---
+title: "Collect Model Selection Results of Carcass"
+output:
+  rmarkdown::html_vignette: default
+  rmarkdown::pdf_document: default
+vignette: >
+  %\VignetteIndexEntry{Collect Model Selection Results of Carcass}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ModelSelection)
+```
+
+
+# Hintergrund
+Modellselektion bestimmt aus einer Menge von möglichen fixen Effekte und Covariablen diejenigen Elemente, welche für die Erklärung der Variablität in der Zielvariablen einen wichtigen Beitrag leisten. Diese wichtigen fixen Effekte und Covariablen werden in den gemischten linearen Modelle für die Varianzkomponentenschätzung und die Zuchtwertschätzung verwendet.
+
+Varianzkomponenten werden häufig basierend auf Stichproben geschätzt. Die resultierenden Varianzkomponenten geschätzt aufgrund der Stichproben werden gemittelt. Somit kann es auch Sinn machen die Modellselektion für die einzelnen Stichproben zu machen.
+
+Diese Vignette soll zeigen, wie Resultate aus verschiedenen Modellselektionsprozessen kombiniert werden können.
+
+
+# Modellselektion
+In den vorliegenden Stichproben werden nun Modellselektion gemacht und die Resultate werden in einer Tabelle zusammengefasst. Als erstes müssen wir die Zielgrösse bestimmen.  
+
+```{r}
+# first sample to determine the column names of the result tibble
+# vec_sample_path <- "../../../work_ModellSelektion_optimiz/multibreed_optimize_ForModellSelektion/Sample1/fleisch.out"
+vec_sample_path <- system.file("extdata", "sample1","fleisch.out", package = "ModelSelection")
+if (!file.exists(vec_sample_path))
+  stop(" * ERROR: Cannot find sample data file: ", vec_sample_path)
+
+
+# Depending of the file-extension, different reading functions
+if(assertthat::has_extension(path = vec_sample_path, ext = "csv")){
+  tbl_cur_sample <- readr::read_csv(file = vec_sample_path)
+} else if(assertthat::has_extension(path = vec_sample_path, ext = "txt") || assertthat::has_extension(path = vec_sample_path, ext = "out")){
+  tbl_cur_sample <- readr::read_delim(file = vec_sample_path, delim = " ", col_types = readr::cols()) 
+} else{
+  stop(" * ERROR: Cannot find a defined file-extension: ", vec_sample_path)
+}
+
+# Remove some columns should be given as parameter in the function
+vec_ignoring_columns <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding",
+                          "cccn","ccco","ccan","ccas","ccvn","ccvo",
+                          "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
+                          "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
+                          "cacn","caco","caan","caas","caao","cavn","cavo",
+                          "ind")
+require(dplyr)
+tbl_cur_sample <- tbl_cur_sample %>% select(-c(vec_ignoring_columns))
+
+# Convert all fixed effects into factors
+vec_fixeffect_columns <- c("sex","abattoir","classifier","yearsaison","breedcomb","Effekt_HeterosisSumHet","Effekt_RekombinationSumRec")
+for(fx in vec_fixeffect_columns){
+    tbl_cur_sample[[fx]] <- as.factor(tbl_cur_sample[[fx]])
+}
+
+s_response <- "ccao"
+vec_pred <- setdiff(names(tbl_cur_sample), s_response)
+# Modellselektion
+formula.full <- as.formula(paste( s_response, paste0(vec_pred, collapse = " + "), sep = " ~ "))
+lm.full <- lm(formula = formula.full, data = tbl_cur_sample)
+(k <- olsrr::ols_step_backward_aic(model = lm.full))
+```
+
+Die Zusammenstellung der Resultate der Modellselektion über eine Anzahl von Samples wird in der folgenden Funktion gemacht. 
+
+```{r, eval=FALSE}
+collect_ols_results <- function(pvec_sample, ps_response, pvec_ignoring_columns, pvec_fixeffect_columns){
+  
+    suppressPackageStartupMessages(if(! require("dplyr")) {
+    install.packages("dplyr", repos="https://stat.ethz.ch/CRAN/")
+    require("dplyr")
+  })
+  
+  #depending of the file-extension, different reading functions for the first sample
+  if(assertthat::has_extension(path = vec_sample_path[1], ext = "csv")){
+    tbl_first_sample <- readr::read_csv(file = vec_sample_path[1], col_types = readr::cols())
+  } else if(assertthat::has_extension(path = vec_sample_path[1], ext = "txt") || assertthat::has_extension(path = vec_sample_path, ext = "out")){
+    tbl_first_sample <- readr::read_delim(file = vec_sample_path[1], delim = " ", col_types = readr::cols()) 
+  } else{
+    stop(" * ERROR: Cannot find a defined file-extension of the first file: ", vec_sample_path[1])
+  }
+  
+  # ignore some columns
+  tbl_first_sample <- tbl_first_sample %>% select(-c(pvec_ignoring_columns))
+  # check that ps_response is in colnames(tbl_first_sample)
+  if (!ps_response %in% colnames(tbl_first_sample))
+    stop(" * ERROR: Cannot find response variable: ", ps_response, " in columnnames of first sample.")
+  # Distinguish between fix effects (as.factor) and covariables (still numeric)
+  for(fx in pvec_fixeffect_columns){
+    tbl_first_sample[[fx]] <- as.factor(tbl_first_sample[[fx]])
+  }
+  # determine the predictors from column of first sample
+  vec_pred <- setdiff(names(tbl_first_sample), ps_response)
+  # the vector of column names of the result tibble
+  vec_col <- c("SampleID", "(Intercept)", vec_pred, "AIC")
+  
+  # determine the number of samples
+  n_nr_sample <- length(pvec_sample)
+  # initialise the result tibble
+  tbl_result <- tibble::as_tibble(matrix(0, nrow = n_nr_sample, ncol = length(vec_col)))
+  colnames(tbl_result) <- vec_col
+
+  # specify the formula for the full model
+  formula.full <- as.formula(paste( ps_response, paste0(vec_pred, collapse = " + "), sep = " ~ "))
+
+  # loop over the samples and do the model selection
+  for (sidx in seq_along(pvec_sample)){
+    
+      if(assertthat::has_extension(path = pvec_sample[sidx], ext = "csv")){
+         tbl_cur_sample <- readr::read_csv(file = pvec_sample[sidx], col_types = readr::cols())
+      } else if(assertthat::has_extension(path = pvec_sample[sidx], ext = "txt") || assertthat::has_extension(path = vec_sample_path, ext = "out")){
+         tbl_cur_sample <- readr::read_delim(file = pvec_sample[sidx], delim = " ", col_types = readr::cols()) 
+      } else{
+         stop(" * ERROR: Cannot find a defined file-extension: ", pvec_sample[sidx])
+      }
+    
+    lm.full.cur <- lm(formula = formula.full, data = tbl_cur_sample)
+    ols_result <- olsrr::ols_step_backward_aic(model = lm.full.cur)
+    tbl_result[sidx, names(coefficients(ols_result$model))] <- 1
+    tbl_result[sidx, "AIC"] <- ols_result$aics[length(ols_result$aics)]
+    tbl_result[sidx, "SampleID"] <- sidx
+  }
+  
+  # return the resulting tibble    
+  return(tbl_result)  
+}
+```
+
+The above function is tested by the following call
+
+```{r}
+#Parameter of the collect_ols_results-function
+n_nr_sample <- 2
+vec_sample_dir <- sapply(1:n_nr_sample, 
+                        function(x) paste0("/Users/skn/muku_Carcass/work_ModellSelektion_optimiz/multibreed_optimize_ForModellSelektion/Sample", x, collapse = ""), 
+                        USE.NAMES = FALSE)
+vec_sample_files <- "fleisch.out"
+# vec_sample_path <- file.path(vec_sample_dir, vec_sample_files)
+
+vec_sample_path <- system.file("extdata", "sample1","fleisch.out", package = "ModelSelection")
+
+vec_reponse <- c("cccn","ccco","ccan","ccas","ccao",
+                  "cwcn","cwco","cwan","cwas","cwao",
+                  "cfcn","cfco","cfan","cfas","cfao",
+                  "cacn","caco","caan","caas","caao")
+
+vec_fixeffect_columns <- c("sex","abattoir","classifier","yearsaison","breedcomb","Effekt_HeterosisSumHet","Effekt_RekombinationSumRec")
+
+vec_ignoring_columns <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding",
+                          "cccn","ccco","ccan","ccas","ccao","ccvn","ccvo",
+                          "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
+                          "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
+                          "cacn","caco","caan","caas","caao","cavn","cavo",
+                          "ind")
+```
+
+
+```{r}
+for(mrkml in vec_reponse){
+  
+  tbl_ols_result <- collect_ols_results(pvec_sample = vec_sample_path,
+                                        ps_response = mrkml, 
+                                        pvec_ignoring_columns = setdiff(vec_ignoring_columns, mrkml))
+  
+  knitr::kable(tbl_ols_result)
+  
+}
+
+```
+
+
+# Session Info
+```{r}
+sessioninfo::session_info()
+```
+
