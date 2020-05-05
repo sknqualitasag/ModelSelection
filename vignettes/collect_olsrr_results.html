@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Collect Model Selection Results</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Collect Model Selection Results</h1>
+
+
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ModelSelection)</code></pre></div>
+<div id="hintergrund" class="section level1">
+<h1>Hintergrund</h1>
+<p>Modellselektion bestimmt aus einer Menge von möglichen fixen Effekte und Covariablen diejenigen Elemente, welche für die Erklärung der Variablität in der Zielvariablen einen wichtigen Beitrag leisten. Diese wichtigen fixen Effekte und Covariablen werden in den gemischten linearen Modelle für die Varianzkomponentenschätzung und die Zuchtwertschätzung verwendet.</p>
+<p>Varianzkomponenten werden häufig basierend auf Stichproben geschätzt. Die resultierenden Varianzkomponenten geschätzt aufgrund der Stichproben werden gemittelt. Somit kann es auch Sinn machen die Modellselektion für die einzelnen Stichproben zu machen.</p>
+<p>Diese Vignette soll zeigen, wie Resultate aus verschiedenen Modellselektionsprozessen kombiniert werden können.</p>
+</div>
+<div id="vorbereitung" class="section level1">
+<h1>Vorbereitung</h1>
+<p>Wir nehmen an, dass aus einem bestehenden Datensatz ein Anzahl von Stichproben gezogen werden, Diese liegen in Form von separaten Inputdateien im csv-Format vor.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">n_nr_sample &lt;-<span class="st"> </span><span class="dv">10</span>
+n_sample_size &lt;-<span class="st"> </span><span class="dv">30</span>
+
+<span class="co"># samples from mtcars and write samples to files in tmpdir</span>
+tmpdir &lt;-<span class="st"> </span><span class="kw">tempdir</span>()
+<span class="kw">cat</span>(<span class="st">&quot; * Sample directory: &quot;</span>, tmpdir, <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)
+<span class="co">#&gt;  * Sample directory:  /tmp/RtmpnRvbgT</span>
+vec_sample_files &lt;-<span class="st"> </span><span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span>n_nr_sample, 
+                           <span class="cf">function</span>(x) <span class="kw">paste0</span>(<span class="st">&quot;mtcars_sample_&quot;</span>, x, <span class="st">&quot;.csv&quot;</span>, <span class="dt">collapse =</span> <span class="st">&quot;&quot;</span>), 
+                           <span class="dt">USE.NAMES =</span> <span class="ot">FALSE</span>)
+vec_sample_path &lt;-<span class="st"> </span><span class="kw">file.path</span>(tmpdir, vec_sample_files)
+<span class="kw">set.seed</span>(<span class="dv">321</span>)
+<span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>n_nr_sample){
+  <span class="kw">cat</span>(<span class="st">&quot; * Generate sample &quot;</span>, i, <span class="st">&quot; ...</span><span class="ch">\n</span><span class="st">&quot;</span>)
+  cur_sample &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">sample_n</span>(mtcars, n_sample_size, <span class="dt">replace =</span> <span class="ot">TRUE</span>)
+  readr<span class="op">::</span><span class="kw">write_csv</span>(cur_sample, <span class="dt">path =</span> vec_sample_path[i])
+}
+<span class="co">#&gt;  * Generate sample  1  ...</span>
+<span class="co">#&gt;  * Generate sample  2  ...</span>
+<span class="co">#&gt;  * Generate sample  3  ...</span>
+<span class="co">#&gt;  * Generate sample  4  ...</span>
+<span class="co">#&gt;  * Generate sample  5  ...</span>
+<span class="co">#&gt;  * Generate sample  6  ...</span>
+<span class="co">#&gt;  * Generate sample  7  ...</span>
+<span class="co">#&gt;  * Generate sample  8  ...</span>
+<span class="co">#&gt;  * Generate sample  9  ...</span>
+<span class="co">#&gt;  * Generate sample  10  ...</span></code></pre></div>
+</div>
+<div id="modellselektion" class="section level1">
+<h1>Modellselektion</h1>
+<p>In den vorliegenden Stichproben werden nun Modellselektion gemacht und die Resultate werden in einer Tabelle zusammengefasst. Als erstes müssen wir die Zielgrösse bestimmen. Wir nehmen hier an, dass die restlichen Variablen in den Stichprobendatensätzen sind fixe Effekte oder Kovariablen.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># first sample to determine the column names of the result tibble</span>
+tbl_cur_sample &lt;-<span class="st"> </span>readr<span class="op">::</span><span class="kw">read_csv</span>(<span class="dt">file =</span> vec_sample_path[<span class="dv">1</span>])
+<span class="co">#&gt; Parsed with column specification:</span>
+<span class="co">#&gt; cols(</span>
+<span class="co">#&gt;   mpg = col_double(),</span>
+<span class="co">#&gt;   cyl = col_double(),</span>
+<span class="co">#&gt;   disp = col_double(),</span>
+<span class="co">#&gt;   hp = col_double(),</span>
+<span class="co">#&gt;   drat = col_double(),</span>
+<span class="co">#&gt;   wt = col_double(),</span>
+<span class="co">#&gt;   qsec = col_double(),</span>
+<span class="co">#&gt;   vs = col_double(),</span>
+<span class="co">#&gt;   am = col_double(),</span>
+<span class="co">#&gt;   gear = col_double(),</span>
+<span class="co">#&gt;   carb = col_double()</span>
+<span class="co">#&gt; )</span>
+s_response &lt;-<span class="st"> &quot;mpg&quot;</span>
+vec_pred &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span class="kw">names</span>(tbl_cur_sample), s_response)
+<span class="co"># vector of column names</span>
+vec_col &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;(Intercept)&quot;</span>, vec_pred)
+<span class="co"># Modellselektion</span>
+formula.full &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="kw">paste</span>( s_response, <span class="kw">paste0</span>(vec_pred, <span class="dt">collapse =</span> <span class="st">&quot; + &quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; ~ &quot;</span>))
+lm.full &lt;-<span class="st"> </span><span class="kw">lm</span>(<span class="dt">formula =</span> formula.full, <span class="dt">data =</span> tbl_cur_sample)
+(k &lt;-<span class="st"> </span>olsrr<span class="op">::</span><span class="kw">ols_step_backward_aic</span>(<span class="dt">model =</span> lm.full))
+<span class="co">#&gt; </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;                      Backward Elimination Summary                     </span>
+<span class="co">#&gt; --------------------------------------------------------------------</span>
+<span class="co">#&gt; Variable        AIC        RSS       Sum Sq      R-Sq      Adj. R-Sq </span>
+<span class="co">#&gt; --------------------------------------------------------------------</span>
+<span class="co">#&gt; Full Model    150.351    118.512    1048.235    0.89843      0.84497 </span>
+<span class="co">#&gt; disp          148.352    118.518    1048.229    0.89842      0.85271 </span>
+<span class="co">#&gt; vs            146.414    118.761    1047.986    0.89821      0.85943 </span>
+<span class="co">#&gt; gear          144.495    119.081    1047.666    0.89794      0.86546 </span>
+<span class="co">#&gt; drat          142.948    120.893    1045.854    0.89638      0.86935 </span>
+<span class="co">#&gt; hp            141.605    123.571    1043.176    0.89409      0.87202 </span>
+<span class="co">#&gt; cyl           140.240    126.215    1040.532    0.89182      0.87452 </span>
+<span class="co">#&gt; --------------------------------------------------------------------</span>
+<span class="co"># collect results</span>
+<span class="co"># res[1, names(coefficients(k$model))] &lt;- 1</span></code></pre></div>
+<p>Die Zusammenstellung der Resultate der Modellselektion über eine Anzahl von Samples wird in der folgenden Funktion gemacht.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">collect_ols_results &lt;-<span class="st"> </span><span class="cf">function</span>(pvec_sample, ps_response){
+  <span class="co"># read the first sample</span>
+  tbl_first_sample &lt;-<span class="st"> </span>readr<span class="op">::</span><span class="kw">read_csv</span>(<span class="dt">file =</span> pvec_sample[<span class="dv">1</span>], <span class="dt">col_types =</span> readr<span class="op">::</span><span class="kw">cols</span>())
+  <span class="co"># check that ps_response is in colnames(tbl_first_sample)</span>
+  <span class="cf">if</span> (<span class="op">!</span>ps_response <span class="op">%in%</span><span class="st"> </span><span class="kw">colnames</span>(tbl_first_sample))
+    <span class="kw">stop</span>(<span class="st">&quot; * ERROR: Cannot find response variable: &quot;</span>, ps_response, <span class="st">&quot; in columnnames of first sample.&quot;</span>)
+  <span class="co"># determine the predictors from column of first sample</span>
+  vec_pred &lt;-<span class="st"> </span><span class="kw">setdiff</span>(<span class="kw">names</span>(tbl_first_sample), ps_response)
+  <span class="co"># the vector of column names of the result tibble</span>
+  vec_col &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;SampleID&quot;</span>, <span class="st">&quot;(Intercept)&quot;</span>, vec_pred, <span class="st">&quot;AIC&quot;</span>)
+  
+  <span class="co"># determine the number of samples</span>
+  n_nr_sample &lt;-<span class="st"> </span><span class="kw">length</span>(pvec_sample)
+  <span class="co"># initialise the result tibble</span>
+  tbl_result &lt;-<span class="st"> </span>tibble<span class="op">::</span><span class="kw">as_tibble</span>(<span class="kw">matrix</span>(<span class="dv">0</span>, <span class="dt">nrow =</span> n_nr_sample, <span class="dt">ncol =</span> <span class="kw">length</span>(vec_col)))
+  <span class="kw">colnames</span>(tbl_result) &lt;-<span class="st"> </span>vec_col
+
+  <span class="co"># specify the formula for the full model</span>
+  formula.full &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="kw">paste</span>( ps_response, <span class="kw">paste0</span>(vec_pred, <span class="dt">collapse =</span> <span class="st">&quot; + &quot;</span>), <span class="dt">sep =</span> <span class="st">&quot; ~ &quot;</span>))
+
+  <span class="co"># loop over the samples and do the model selection</span>
+  <span class="cf">for</span> (sidx <span class="cf">in</span> <span class="kw">seq_along</span>(pvec_sample)){
+    tbl_cur_sample &lt;-<span class="st"> </span>readr<span class="op">::</span><span class="kw">read_csv</span>(<span class="dt">file =</span> pvec_sample[sidx], <span class="dt">col_types =</span> readr<span class="op">::</span><span class="kw">cols</span>())
+    lm.full.cur &lt;-<span class="st"> </span><span class="kw">lm</span>(<span class="dt">formula =</span> formula.full, <span class="dt">data =</span> tbl_cur_sample)
+    ols_result &lt;-<span class="st"> </span>olsrr<span class="op">::</span><span class="kw">ols_step_backward_aic</span>(<span class="dt">model =</span> lm.full.cur)
+    tbl_result[sidx, <span class="kw">names</span>(<span class="kw">coefficients</span>(ols_result<span class="op">$</span>model))] &lt;-<span class="st"> </span><span class="dv">1</span>
+    tbl_result[sidx, <span class="st">&quot;AIC&quot;</span>] &lt;-<span class="st"> </span>ols_result<span class="op">$</span>aics[<span class="kw">length</span>(ols_result<span class="op">$</span>aics)]
+    tbl_result[sidx, <span class="st">&quot;SampleID&quot;</span>] &lt;-<span class="st"> </span>sidx
+  }
+  
+  <span class="co"># return the resulting tibble    </span>
+  <span class="kw">return</span>(tbl_result)  
+}</code></pre></div>
+<p>The above function is tested by the following call</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tbl_ols_result &lt;-<span class="st"> </span><span class="kw">collect_ols_results</span>(<span class="dt">pvec_sample =</span> vec_sample_path, <span class="dt">ps_response =</span> <span class="st">&quot;mpg&quot;</span>)
+knitr<span class="op">::</span><span class="kw">kable</span>(tbl_ols_result)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="right">SampleID</th>
+<th align="right">(Intercept)</th>
+<th align="right">cyl</th>
+<th align="right">disp</th>
+<th align="right">hp</th>
+<th align="right">drat</th>
+<th align="right">wt</th>
+<th align="right">qsec</th>
+<th align="right">vs</th>
+<th align="right">am</th>
+<th align="right">gear</th>
+<th align="right">carb</th>
+<th align="right">AIC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">140.2399</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">144.7927</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">130.3950</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">142.0611</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">122.7919</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">145.3879</td>
+</tr>
+<tr class="odd">
+<td align="right">7</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">136.4479</td>
+</tr>
+<tr class="even">
+<td align="right">8</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">132.7289</td>
+</tr>
+<tr class="odd">
+<td align="right">9</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">131.3293</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">140.2399</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="clean-up" class="section level1">
+<h1>Clean Up</h1>
+<p>Die Datenfiles mit den Stichproben brauchen wir nicht mehr.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fs<span class="op">::</span><span class="kw">file_delete</span>(<span class="dt">path =</span> <span class="kw">file.path</span>(tmpdir, vec_sample_files))</code></pre></div>
+</div>
+<div id="session-info" class="section level1">
+<h1>Session Info</h1>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sessioninfo<span class="op">::</span><span class="kw">session_info</span>()
+<span class="co">#&gt; ─ Session info ───────────────────────────────────────────────────────────────</span>
+<span class="co">#&gt;  setting  value                       </span>
+<span class="co">#&gt;  version  R version 3.6.2 (2019-12-12)</span>
+<span class="co">#&gt;  os       Ubuntu 18.04 LTS            </span>
+<span class="co">#&gt;  system   x86_64, linux-gnu           </span>
+<span class="co">#&gt;  ui       X11                         </span>
+<span class="co">#&gt;  language de_CH:de                    </span>
+<span class="co">#&gt;  collate  de_CH.UTF-8                 </span>
+<span class="co">#&gt;  ctype    de_CH.UTF-8                 </span>
+<span class="co">#&gt;  tz       Europe/Berlin               </span>
+<span class="co">#&gt;  date     2020-04-28                  </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; ─ Packages ───────────────────────────────────────────────────────────────────</span>
+<span class="co">#&gt;  package        * version date       lib source        </span>
+<span class="co">#&gt;  abind            1.4-5   2016-07-21 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  assertthat       0.2.1   2019-03-21 [1] CRAN (R 3.6.0)</span>
+<span class="co">#&gt;  car              3.0-7   2020-03-11 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  carData          3.0-3   2019-11-16 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  cellranger       1.1.0   2016-07-27 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  cli              2.0.2   2020-02-28 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  colorspace       1.4-1   2019-03-18 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  crayon           1.3.4   2017-09-16 [1] CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  curl             4.3     2019-12-02 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  data.table       1.12.8  2019-12-09 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  digest           0.6.25  2020-02-23 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  dplyr            0.8.5   2020-03-07 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  evaluate         0.14    2019-05-28 [1] CRAN (R 3.6.0)</span>
+<span class="co">#&gt;  fansi            0.4.1   2020-01-08 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  forcats          0.5.0   2020-03-01 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  foreign          0.8-74  2019-12-26 [4] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  fs               1.3.2   2020-03-05 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  ggplot2          3.3.0   2020-03-05 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  glue             1.3.2   2020-03-12 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  goftest          1.2-2   2019-12-02 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  gridExtra        2.3     2017-09-09 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  gtable           0.3.0   2019-03-25 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  haven            2.2.0   2019-11-08 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  highr            0.8     2019-03-20 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  hms              0.5.2   2019-10-30 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  htmltools        0.4.0   2019-10-04 [1] CRAN (R 3.6.0)</span>
+<span class="co">#&gt;  knitr            1.28    2020-02-06 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  lifecycle        0.2.0   2020-03-06 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  magrittr         1.5     2014-11-22 [1] CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  ModelSelection * 0.1.0   2020-04-28 [1] local         </span>
+<span class="co">#&gt;  munsell          0.5.0   2018-06-12 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  nortest          1.0-4   2015-07-30 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  olsrr            0.5.3   2020-02-10 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  openxlsx         4.1.0.1 2019-05-28 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  pillar           1.4.2   2019-06-29 [1] CRAN (R 3.6.0)</span>
+<span class="co">#&gt;  pkgconfig        2.0.3   2019-09-22 [1] CRAN (R 3.6.0)</span>
+<span class="co">#&gt;  purrr            0.3.3   2019-10-18 [1] CRAN (R 3.6.0)</span>
+<span class="co">#&gt;  R6               2.4.1   2019-11-12 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  Rcpp             1.0.3   2019-11-08 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  readr            1.3.1   2018-12-21 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  readxl           1.3.1   2019-03-13 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt;  rio              0.5.16  2018-11-26 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  rlang            0.4.5   2020-03-01 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  rmarkdown        2.1     2020-01-20 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  scales           1.1.0   2019-11-18 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  sessioninfo      1.1.1   2018-11-05 [1] CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  stringi          1.4.6   2020-02-17 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  stringr          1.4.0   2019-02-10 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  tibble           2.1.3   2019-06-06 [1] CRAN (R 3.6.0)</span>
+<span class="co">#&gt;  tidyselect       1.0.0   2020-01-27 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  vctrs            0.2.4   2020-03-10 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  withr            2.1.2   2018-03-15 [1] CRAN (R 3.4.4)</span>
+<span class="co">#&gt;  xfun             0.12    2020-01-13 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  yaml             2.2.1   2020-02-01 [1] CRAN (R 3.6.2)</span>
+<span class="co">#&gt;  zip              2.0.4   2019-09-01 [1] CRAN (R 3.6.1)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; [1] /home/zws/lib/R/library</span>
+<span class="co">#&gt; [2] /usr/local/lib/R/site-library</span>
+<span class="co">#&gt; [3] /usr/lib/R/site-library</span>
+<span class="co">#&gt; [4] /usr/lib/R/library</span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
