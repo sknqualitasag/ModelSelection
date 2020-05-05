@@ -59,7 +59,7 @@ s_dir_path <- params$dir
 vec_sample_dir <- sapply(1:n_nr_sample, 
                         function(x) paste0(s_dir_path,"/Sample", x, collapse = ""), 
                         USE.NAMES = FALSE)
-vec_sample_files <- "fleisch.out"
+vec_sample_files <- "fleisch_Sum.out"
 vec_sample_path <- file.path(vec_sample_dir, vec_sample_files)
 if (!all(file.exists(vec_sample_path)))
   stop(" * ERROR: Cannot find sample data file: ", vec_sample_path)
