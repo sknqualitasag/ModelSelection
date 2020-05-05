@@ -75,6 +75,8 @@ collect_stepAIC_results <- function(pvec_sample, ps_response,
     # check that ps_response is in colnames(tbl_cur_sample)
     if (!ps_response %in% colnames(tbl_cur_sample))
       stop(" * ERROR in collect_stepAIC_results: Cannot find response variable: ", ps_response, " in columnnames of current sample.")
+    # ps_response assure that have a record
+    tbl_cur_sample <- tbl_cur_sample[tbl_cur_sample[[ps_response]] != 0,]
     # Distinguish between fix effects (as.factor) and covariables (still numeric)
     if (!is.null(pvec_fixeffect_columns)){
       for(fx in pvec_fixeffect_columns){
