@@ -1,0 +1,122 @@
+---
+title: "Collecting stepAIC Results Carcass With Covariables"
+output: rmarkdown::html_vignette
+params:
+  dir: ""
+  num_sample: ""
+vignette: >
+  %\VignetteIndexEntry{Collecting stepAIC Results}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ModelSelection)
+```
+
+
+# Hintergrund
+Modellselektion für fixe lineare Modelle wird mit `MASS::stepAIC()` gemacht. Dieses Package bietet Funktionalität zur Zusammenstellung von Modellselektionsresultaten über verschiedene Stichprobendatensätze. Die Zusammenstellung der Resultate ist in der Funktion `collect_stepAIC_results` umgesetzt.
+
+# Anwendung
+Modellselektion für Schlachtmerkmale unterteilt nach Produktionssystem, wobei Schlachtalter als Covariable enthaltet ist.
+
+Die zwei ersten Buchstaben:
+
+* cc = carcass conformation (Fleischigkeit)
+
+* cf = carcass fat (Fettabdeckung)
+
+* cw = carcass weight (Schlachtgewicht)
+
+Die zwei letzten Buchstaben:
+
+* cn = Natura-Veal
+
+* co = Kälbermast
+
+* an = Natura-Beef
+
+* as = SwissPrimBeef&NaturaFarm
+
+* ao = Grossviehmast
+
+## Fleischigkeit und Fettabdeckung
+```{r, echo=FALSE}
+# get vector with sample data
+n_nr_sample <- params$num_sample
+s_dir_path <- params$dir
+vec_sample_dir <- sapply(1:n_nr_sample, 
+                        function(x) paste0(s_dir_path,"/Sample", x, collapse = ""), 
+                        USE.NAMES = FALSE)
+vec_sample_files <- "fleisch.out"
+vec_sample_path <- file.path(vec_sample_dir, vec_sample_files)
+if (!all(file.exists(vec_sample_path)))
+  stop(" * ERROR: Cannot find sample data file: ", vec_sample_path)
+
+# specify the traits
+vec_reponse <- c("cccn","ccco","ccan","ccas","ccao",
+                 "cfcn","cfco","cfan","cfas","cfao")
+
+# specify a vector with columns to be ignored
+vec_ignoring_columns <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding",
+                          "cccn","ccco","ccan","ccas","ccao","ccvn","ccvo",
+                          "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
+                          "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
+                          "cacn","caco","caan","caas","caao","cavn","cavo",
+                          "ind","Effekt_HeterosisSumHet","Effekt_RekombinationSumRec")
+
+# specify a vector of fixed effects
+vec_fixeffect_columns <- c("sex","abattoir","classifier","yearsaison","breedcomb")
+```
+
+```{r,results='asis', warning=FALSE, echo=FALSE}
+for(s_response in vec_reponse){
+  
+  tbl_collected_results <- collect_stepAIC_results(pvec_sample = vec_sample_path,
+                                                   ps_response = s_response,
+                                                   pvec_ignoring_columns = setdiff(vec_ignoring_columns, s_response),
+                                                   pvec_fixeffect_columns = vec_fixeffect_columns)
+  
+  print(knitr::kable(tbl_collected_results, caption = s_response))
+  
+}
+```
+
+## Schlachtgewicht
+
+Im Gegensatz zu Fleischigkeit und Fettabdeckung enthält das Schlachtgewicht keine Klassifierer als fixen Effekt.
+
+```{r, echo=FALSE}
+# specify the traits
+vec_reponse_cw <- c("cwcn","cwco","cwan","cwas","cwao")
+# specify a vector with columns to be ignored
+vec_ignoring_columns_cw <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding","classifier",
+                              "cccn","ccco","ccan","ccas","ccao","ccvn","ccvo",
+                              "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
+                              "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
+                              "cacn","caco","caan","caas","caao","cavn","cavo",
+                              "ind","Effekt_HeterosisSumHet","Effekt_RekombinationSumRec")
+# specify a vector of fixed effects
+vec_fixeffect_columns_cw <- c("sex","abattoir","yearsaison","breedcomb")
+```
+
+```{r,results='asis', warning=FALSE, echo=FALSE}
+for(mrkml in vec_reponse_cw){
+  
+  tbl_collected_results_cw <- collect_stepAIC_results(pvec_sample = vec_sample_path,
+                                                   ps_response = mrkml,
+                                                   pvec_ignoring_columns = setdiff(vec_ignoring_columns_cw, mrkml),
+                                                   pvec_fixeffect_columns = vec_fixeffect_columns_cw)
+  
+  print(knitr::kable(tbl_collected_results_cw, caption = mrkml))
+  
+}
+```
