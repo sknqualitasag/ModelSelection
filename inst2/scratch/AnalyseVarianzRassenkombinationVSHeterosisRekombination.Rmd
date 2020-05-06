@@ -1,0 +1,450 @@
+---
+title: "Analyse Varianz vom Effekt Rassenkombination vs Heterosis/Rekombination"
+author: "Sophie Kunz"
+date: "30 4 2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, include=FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+# Hintergrund
+Aus den Ergebnissen der Modellselektion hat sich rausgestellt, dass sowohl der fixen Effekt Rassenkombination wie auch Heterosis und Rekombination im Modell für alle Schlachtmerkmale enthalten sollten. Dieses Ergebnis ist unerwartet. 
+
+# Ziel
+Analyse aus dem gesamten Datensatz von der Varianz der wichtigsten Effekte für Rassenkombination sowie Heterosis und Rekombination.
+
+# Vorgehen
+Der Merkmalsblock Schlachtgewicht wurde ausgewählt, da es ist der "sauberste" erhobene Merkmal. Dann wird von den 10 verbreitesten Rassenkombinationen die Varianz von
+
+* Jeder Heterosis- sowie Rekombinationskoeffizient analysiert
+
+* Der Summe von Heterosis- sowie Rekombinationskoeffizient analysiert
+
+* Die Kodierung von Heterosis- sowie Rekombinationseffekt analysiert
+
+
+# Analyse
+
+```{r, include=FALSE}
+# read data with the effect coding
+s_daten <- "../../../../work_ModellSelektion_optimiz/Sample6/fleisch.out"
+tbl_daten <- readr::read_delim(file = s_daten, delim = " ")
+rm(s_daten)
+# ignore some columns
+tbl_daten <- tbl_daten %>% select(-c(1:8,10:22,28:43))
+# only the 10 major effect in breedcomb 
+# according to the Vignette "Analyse Lösung vom Effekt Rassenkombination vs Heterosis/Rekombination"
+tbl_daten <- tbl_daten %>% filter(breedcomb == 4 |
+                                  breedcomb == 1 |
+                                  breedcomb == 15 |
+                                  breedcomb == 16 |
+                                  breedcomb == 23 |
+                                  breedcomb == 9 |
+                                  breedcomb == 26 |
+                                  breedcomb == 8 |
+                                  breedcomb == 19 |
+                                  breedcomb == 10)
+
+
+
+# write the combination of the 10 major effect in breedcomb 
+tbl_daten <- tbl_daten %>% mutate(SxD = case_when(breedcomb == 4 ~ "BV.BV",
+                                                  breedcomb == 1 ~ "LM.BV",
+                                                  breedcomb == 15 ~ "HO.HO",
+                                                  breedcomb == 16 ~ "LM.KR",
+                                                  breedcomb == 23 ~ "LM.HO",
+                                                  breedcomb == 9 ~ "SI.SI",
+                                                  breedcomb == 26 ~ "UF.BV",
+                                                  breedcomb == 8 ~ "LM.SF",
+                                                  breedcomb == 19 ~ "AN.AN",
+                                                  breedcomb == 10 ~ "LM.SI"))
+```
+
+```{r, echo=FALSE}
+tbl_daten %>% group_by(breedcomb, SxD) %>% count(sort = TRUE)
+```
+
+```{r}
+# number Grossviehmast
+tbl_daten %>% filter(cwao != 0) %>% tally()
+```
+
+```{r}
+# number Natura-Beef
+tbl_daten %>% filter(cwan != 0) %>% tally()
+```
+
+```{r}
+# number SwissPrimBeef&Natura-Farm
+tbl_daten %>% filter(cwas != 0) %>% tally()
+```
+
+```{r}
+# number Kälbermast
+tbl_daten %>% filter(cwco != 0) %>% tally()
+```
+
+```{r}
+# number Natura-Veal
+tbl_daten %>% filter(cwcn != 0) %>% tally()
+```
+
+Es wird erstmal auf dem Merkmal `cwao` (also Schlachtgewicht Grossviehmast) fokussiert.
+```{r, include=FALSE}
+# supress other carcass weight traits
+tbl_daten <- tbl_daten %>% select(-c("cwcn","cwco","cwan","cwas"))
+# select only animals with cwao
+tbl_daten <- tbl_daten %>% filter(cwao != 0)
+```
+
+```{r, include=FALSE}
+# read the file with heterosis- and recombination coefficients
+s_hetrec <- "../../../../work_ModellSelektion_optimiz/Sample6/hetRec_fleischout.csv"
+tbl_hetrec <- readr::read_delim(file = s_hetrec, delim = ";")
+rm(s_hetrec)
+# ignore some columns
+tbl_hetrec <- tbl_hetrec %>% select(-c(1,2,4))
+# merge both files
+tbl_analyse <- tbl_daten %>% inner_join(tbl_hetrec, by = c("ind" = "TierID_TVD"))
+rm(tbl_daten);rm(tbl_hetrec)
+```
+
+## breedcomb LM.BV
+
+```{r, include=FALSE}
+# select breedcomb LM.BV
+tbl_LM.BV <- tbl_analyse %>% filter(breedcomb == 1)
+# ignore some columns -> heterosis and recombination only the one's corresponding to the breedcomb
+tbl_LM.BV <- tbl_LM.BV %>% select(-c(7:60))
+```
+
+Es wird zu dem spezifischen Heterosiskoeffizient von LM.BV angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of heterosis coefficient Het_BRxLM
+ggplot(tbl_LM.BV, aes(x=Het_BRxLM))+
+  geom_histogram(bins = 100)
+```
+
+```{r, include =FALSE, warning=FALSE}
+ggplot(tbl_LM.BV, aes(x=Het_BRxLM, y=cwao)) +
+  geom_point()
+```
+
+Es wird zu dem spezifischen Rekombinationskoeffizient von LM.BV angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of recombination coefficient Rec_BRxLM
+ggplot(tbl_LM.BV, aes(x=Rec_BRxLM))+
+  geom_histogram(bins = 100)
+```
+
+Es zu berücksichtigen in der Berechnung von Heterosis sowie Rekombination stützt sich auf Blutanteile. Es wird mit Gruppen gearbeiten. Dabei BV und BS ist in der Gruppe BR. Dafür OB und ROB in der Gruppe DP. Darunter einen Fall-Beispiel:
+
+```{r, echo=FALSE}
+tbl_analyse %>% filter(ind == "CH120000082485") %>% select("ind","Het_DPxLM","Rec_DPxLM","Het_DPxBR","Rec_DPxBR","Het_BRxLM","Rec_BRxLM","SumHet","SumRec")
+```
+
+Es wird zu dem gesamten Heterosiskoeffizient von LM.BV angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total heterosis
+ggplot(tbl_LM.BV, aes(x=SumHet))+
+  geom_histogram(bins = 100)
+```
+
+Es wird zu dem gesamten Rekombinationskoeffizient von LM.BV angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total recombination
+ggplot(tbl_LM.BV, aes(x=SumRec))+
+  geom_histogram(bins = 100)
+```
+
+Mit dem gesamten Heterosis wird der Effekt dafür kodiert. Die Varianz von dem wird angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+tbl_LM.BV %>% group_by(Effekt_HeterosisSumHet) %>% count(sort = TRUE)
+```
+
+```{r, echo=TRUE}
+#Part of the code in codeEff_HetRec.f90
+#! Heterosis / Heterozygotie codieren
+#    if(rHet_SumHet(indcid14(ind))==0.0)then
+#      iHet_SumHet_Code(i)=2
+#    elseif(rHet_SumHet(indcid14(ind))>0.0 .AND. rHet_SumHet(indcid14(ind))<=0.2)then
+#      iHet_SumHet_Code(i)=3
+#    elseif(rHet_SumHet(indcid14(ind))>0.2 .AND. rHet_SumHet(indcid14(ind))<=0.4)then
+#      iHet_SumHet_Code(i)=4
+#    elseif(rHet_SumHet(indcid14(ind))>0.4 .AND. rHet_SumHet(indcid14(ind))<=0.6)then
+#      iHet_SumHet_Code(i)=5
+#    elseif(rHet_SumHet(indcid14(ind))>0.6 .AND. rHet_SumHet(indcid14(ind))<=0.8)then
+#      iHet_SumHet_Code(i)=6
+#    elseif(rHet_SumHet(indcid14(ind))>0.8)then
+#      iHet_SumHet_Code(i)=7
+#    elseif(rHet_SumHet(indcid14(ind))==-9.99)then  ! Fuer das Tier konnte kein Heterosiseffektkoeffizient berechnet werden
+#      iHet_SumHet_Code(i)=1
+#    else
+#      write(*,*)'FEHLER: Unbekannter Heterosiseffektkoeffizient SumHet in Zeile ',indcid14(ind),' von #',TRIM(cHetRecInFile),&
+#               &' --> PROGRAMMABBRUCH'
+#      call EXIT(iExitStatus)
+#    endif
+```
+
+Wieso gibt es Tiere mit dem Code 1 für Heterosis oder Rekombination?
+Es wurde nach einem konkreten Beispiel gesucht (CH120011735325) und verfolgt. Das Problem ist von der Mutter verursacht, da die Summe ihrer Blutanteile auf 997 kommt. In dem Programm `calcHetRec_optimiz.f90` wird ein Tier als nicht OK gesetzt, wenn die Summe der Blutanteile nicht 1000 macht. Dies wurde am 01.05.2020 an Alexa via SLACK gemeldet.
+
+```{r, include=FALSE}
+#grep CH120011735325 /qualstorzws01/data_projekte/projekte/muku_Carcass/data/20200326_pedigree_rrtdm_VMS.dat
+# 990629312   80799543   78412292 2002 KRCHEF120011735325 CH120011735325 20020302  KR 0 X XXX
+#grep 990629312 /qualstorzws01/data_projekte/projekte/muku_Carcass/data/20200326_Blood_pedigree_rrtdm_VMS.dat
+# 990629312  BS  170  OB   76  JE  250  BV    4  LM  500 -> 1000
+#  80799543  LM 1000
+#  78412292  BS  339  OB  152  JE  499  BV    7 -> 997
+```
+
+
+Mit dem gesamten Rekombination wird der Effekt dafür kodiert. Die Varianz von dem wird angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+tbl_LM.BV %>% group_by(Effekt_RekombinationSumRec) %>% count(sort = TRUE)
+```
+
+```{r}
+#Part of the code in codeEff_HetRec.f90
+#! Rekombination codieren
+#    if(rRec_SumRec(indcid14(ind))==0.0)then
+#      iRec_SumRec_Code(i)=2
+#    elseif(rRec_SumRec(indcid14(ind))>0.0 .AND. rRec_SumRec(indcid14(ind))<=0.1)then
+#      iRec_SumRec_Code(i)=3
+#    elseif(rRec_SumRec(indcid14(ind))>0.1 .AND. rRec_SumRec(indcid14(ind))<=0.2)then
+#      iRec_SumRec_Code(i)=4
+#    elseif(rRec_SumRec(indcid14(ind))>0.2 .AND. rRec_SumRec(indcid14(ind))<=0.3)then
+#      iRec_SumRec_Code(i)=5
+#    elseif(rRec_SumRec(indcid14(ind))>0.3 .AND. rRec_SumRec(indcid14(ind))<=0.4)then
+#      iRec_SumRec_Code(i)=6
+#    elseif(rRec_SumRec(indcid14(ind))>0.4)then
+#      iRec_SumRec_Code(i)=7
+#    elseif(rRec_SumRec(indcid14(ind))==-9.99)then  ! Fuer das Tier konnte kein Rekombinationseffektkoeffizient berechnet #werden
+#      iRec_SumRec_Code(i)=1
+#    else
+#      write(*,*)'FEHLER: Unbekannter Rekombinationseffektkoeffizient SumRec in Zeile ',indcid14(ind),' von #',TRIM(cHetRecInFile),&
+#               &' --> PROGRAMMABBRUCH'
+#      call EXIT(iExitStatus)
+#    endif
+```
+
+## breedcomb BV.BV
+
+```{r, include=FALSE}
+# select breedcomb BV.BV
+tbl_BV.BV <- tbl_analyse %>% filter(breedcomb == 4)
+# ignore some columns -> heterosis and recombination only the one's corresponding to the breedcomb
+tbl_BV.BV <- tbl_BV.BV %>% select(-c(7:62))
+```
+
+Da es kein spezifischen Heterosiskoeffizient für BV.BV, es wird direkt dem gesamten Heterosiskoeffizient angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total heterosis
+ggplot(tbl_BV.BV, aes(x=SumHet))+
+  geom_histogram(bins = 100)
+```
+
+Da es kein spezifischen Rekombinationskoeffizient für BV.BV, es wird direkt dem gesamten Rekombinationskoeffizient angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total heterosis
+ggplot(tbl_BV.BV, aes(x=SumRec))+
+  geom_histogram(bins = 100)
+```
+
+Mit dem gesamten Heterosis wird der Effekt dafür kodiert. Die Varianz von dem wird angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+tbl_BV.BV %>% group_by(Effekt_HeterosisSumHet) %>% count(sort = TRUE)
+```
+
+Mit dem gesamten Rekombination wird der Effekt dafür kodiert. Die Varianz von dem wird angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+tbl_BV.BV %>% group_by(Effekt_RekombinationSumRec) %>% count(sort = TRUE)
+```
+
+Es kommt vorwiegend Heterosis/Rekombination zwischen BV/BS mit OB/ROB.
+
+```{r}
+# Get some case to look up
+tbl_analyse %>% filter(SxD == "BV.BV" & SumHet != 0) %>% head() %>% select(ind, Effekt_HeterosisSumHet, Effekt_RekombinationSumRec, Het_DPxBR, Rec_DPxBR, SumHet, SumRec)
+```
+
+## breedcomb HO.HO
+
+```{r, include=FALSE}
+# select breedcomb HO.HO
+tbl_HO.HO <- tbl_analyse %>% filter(breedcomb == 15)
+# ignore some columns -> heterosis and recombination only the one's corresponding to the breedcomb
+tbl_HO.HO <- tbl_HO.HO %>% select(-c(7:62))
+```
+
+Da es kein spezifischen Heterosiskoeffizient für HO.HO, es wird direkt dem gesamten Heterosiskoeffizient angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total heterosis
+ggplot(tbl_HO.HO, aes(x=SumHet))+
+  geom_histogram(bins = 100)
+```
+
+Da es kein spezifischen Rekombinationskoeffizient für HO.HO, es wird direkt dem gesamten Rekombinationskoeffizient angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total heterosis
+ggplot(tbl_HO.HO, aes(x=SumRec))+
+  geom_histogram(bins = 100)
+```
+
+Mit dem gesamten Heterosis wird der Effekt dafür kodiert. Die Varianz von dem wird angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+tbl_HO.HO %>% group_by(Effekt_HeterosisSumHet) %>% count(sort = TRUE)
+```
+
+Mit dem gesamten Rekombination wird der Effekt dafür kodiert. Die Varianz von dem wird angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+tbl_HO.HO %>% group_by(Effekt_RekombinationSumRec) %>% count(sort = TRUE)
+```
+
+```{r}
+# Get some case to look up
+tbl_analyse %>% filter(SxD == "HO.HO" & SumHet != 0) %>% select(ind, Het_DPxOS, Het_DPxHO, Rec_DPxHO, Het_OSxHO, Rec_OSxHO, SumHet, SumRec) %>% head()
+```
+
+## breedcomb LM.KR
+
+```{r, include=FALSE}
+# select breedcomb LM.KR
+tbl_LM.KR <- tbl_analyse %>% filter(breedcomb == 16)
+# ignore some columns -> heterosis and recombination only the one's corresponding to the breedcomb
+tbl_LM.KR <- tbl_LM.KR %>% select(-c(7:18,21:30,33:40,43:48,51:54,57:58))
+```
+
+Da die Mutter-Seite mit "KR" gekennzeichnet ist, werden die spezifische Gruppen (LY, DP, EY, OS, HO, BR) immer mit LM angeschaut. Darunter sind die zwei Gruppe Kombination mit LM wo am meisten Einfluss haben.
+
+Es wird zu dem spezifischen Heterosiskoeffizient von Het_DPxLM angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of heterosis coefficient Het_DPxLM
+ggplot(tbl_LM.KR, aes(x=Het_DPxLM))+
+  geom_histogram(bins = 100)
+```
+
+Es wird zu dem spezifischen Heterosiskoeffizient von Het_OSxLM angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of heterosis coefficient Het_OSxLM
+ggplot(tbl_LM.KR, aes(x=Het_OSxLM))+
+  geom_histogram(bins = 100)
+```
+
+Es wird dem gesamten Heterosiskoeffizient angeschaut
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total heterosis
+ggplot(tbl_LM.KR, aes(x=SumHet))+
+  geom_histogram(bins = 100)
+```
+
+Es wird dem gesamten Rekombinationskoeffizient angeschaut
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total recombination
+ggplot(tbl_LM.KR, aes(x=SumRec))+
+  geom_histogram(bins = 100)
+```
+
+Mit dem gesamten Heterosis wird der Effekt dafür kodiert. Die Varianz von dem wird angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+tbl_LM.KR %>% group_by(Effekt_HeterosisSumHet) %>% count(sort = TRUE)
+```
+
+Mit dem gesamten Rekombination wird der Effekt dafür kodiert. Die Varianz von dem wird angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+tbl_LM.KR %>% group_by(Effekt_RekombinationSumRec) %>% count(sort = TRUE)
+```
+
+## breedcomb UF.BV
+
+```{r, include=FALSE}
+# select breedcomb UF.BV
+tbl_UF.BV <- tbl_analyse %>% filter(breedcomb == 26)
+# ignore some columns -> heterosis and recombination only the one's corresponding to the breedcomb
+tbl_UF.BV <- tbl_UF.BV %>% select(-c(7:16,19:28,31:38,41:52,55:56,59:60))
+```
+
+Da die Vater-Seite mit "UF" gekennzeichnet ist (höchstwahrscheinlich für Mischsperma wie SILIAN). In dieser Variante sind die Mischsperma noch nicht als Pseudotier gekennzeichnet. 
+
+Es wird dem gesamten Heterosiskoeffizient angeschaut
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total heterosis
+ggplot(tbl_UF.BV, aes(x=SumHet))+
+  geom_histogram(bins = 100)
+```
+
+Es wird dem gesamten Rekombinationskoeffizient angeschaut
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total recombination
+ggplot(tbl_UF.BV, aes(x=SumRec))+
+  geom_histogram(bins = 100)
+```
+
+## breedcomb AN.AN
+
+```{r, include=FALSE}
+# select breedcomb AN.AN
+tbl_AN.AN <- tbl_analyse %>% filter(breedcomb == 19)
+# ignore some columns -> heterosis and recombination only the one's corresponding to the breedcomb
+tbl_AN.AN <- tbl_AN.AN %>% select(-c(7:62))
+```
+
+Da es kein spezifischen Heterosiskoeffizient für AN.AN, es wird direkt dem gesamten Heterosiskoeffizient angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total heterosis
+ggplot(tbl_AN.AN, aes(x=SumHet))+
+  geom_histogram(bins = 100)
+```
+
+Da es kein spezifischen Rekombinationskoeffizient für AN.AN, es wird direkt dem gesamten Rekombinationskoeffizient angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+# plot histogram of total recombination
+ggplot(tbl_AN.AN, aes(x=SumRec))+
+  geom_histogram(bins = 100)
+```
+
+Mit dem gesamten Heterosis wird der Effekt dafür kodiert. Die Varianz von dem wird angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+tbl_AN.AN %>% group_by(Effekt_HeterosisSumHet) %>% count(sort = TRUE)
+```
+
+Mit dem gesamten Rekombination wird der Effekt dafür kodiert. Die Varianz von dem wird angeschaut.
+
+```{r, echo=FALSE, warning=FALSE}
+tbl_AN.AN %>% group_by(Effekt_RekombinationSumRec) %>% count(sort = TRUE)
+```
