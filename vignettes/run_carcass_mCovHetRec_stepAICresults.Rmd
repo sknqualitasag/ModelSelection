@@ -26,7 +26,7 @@ library(ModelSelection)
 Modellselektion für fixe lineare Modelle wird mit `MASS::stepAIC()` gemacht. Dieses Package bietet Funktionalität zur Zusammenstellung von Modellselektionsresultaten über verschiedene Stichprobendatensätze. Die Zusammenstellung der Resultate ist in der Funktion `collect_stepAIC_results` umgesetzt.
 
 # Anwendung
-Modellselektion für Schlachtmerkmale unterteilt nach Produktionssystem, wobei Schlachtalter als Covariable enthaltet ist.
+Modellselektion für Schlachtmerkmale unterteilt nach Produktionssystem, wobei Schlachtalter sowie Heterosis und Rekombination als Covariable enthaltet ist.
 
 Die zwei ersten Buchstaben:
 
