@@ -1,0 +1,168 @@
+---
+title: "Analyse Lösung vom Effekt Rassenkombination vs Heterosis/Rekombination"
+author: "Sophie Kunz"
+date: "30 4 2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+
+# Hintergrund
+Aus den Ergebnissen der Modellselektion hat sich rausgestellt, dass sowohl der fixen Effekt Rassenkombination wie auch Heterosis und Rekombination im Modell für alle Schlachtmerkmale enthalten sollten. Dieses Ergebnis ist unerwartet. 
+
+# Ziel
+Analyse aus dem gesamten Datensatz von den Lösung aus der Modellselektion für Rassenkombination sowie Heterosis und Rekombination.
+
+# Vorgehen
+Der Merkmalsblock Schlachtgewicht wurde ausgewählt, da es ist der "sauberste" erhobene Merkmal. Dann wird die Lösung vom Effekt Rassenkombination und entsprechend Heterosis und Rekombination wo die Rassenkombination am meisten Beobachtungen enthält. Mit dem wird erhofft einerseits die Lösung wie auch die Logik von Effekt kontrolliert.
+
+# Analyse
+
+```{r, include=FALSE}
+### # read data
+s_daten <- "../../../../work_ModellSelektion_optimiz/Sample6/fleisch.out"
+tbl_daten <- readr::read_delim(file = s_daten, delim = " ")
+rm(s_daten)
+### # ignore some columns
+tbl_daten <- tbl_daten %>% select(-c(1:8,10:22,28:43))
+```
+
+Die wichtigsten Rassenkombination nach Effektstuffen sortieren: 
+
+```{r, echo=FALSE}
+### # look to the major effect in breedcomb according to the observation
+tbl_daten %>% count(breedcomb, sort = TRUE)
+```
+
+Gemäss `log_CarcassPlausibilisieren` bedeuten die wichtigsten Effekt nach absteigende Anzahl Beobachtung folgendes:
+
+```{r, echo=TRUE}
+#Absteigende Beobachtung pro Effektstuffe
+#Effect Key = BV.BV Effect Code = 4 Number of obs for Effect = 138694
+#Effect Key = LM.BV Effect Code = 1 Number of obs for Effect = 74443
+#Effect Key = HO.HO Effect Code = 15 Number of obs for Effect = 50063
+#Effect Key = LM.KR Effect Code = 16 Number of obs for Effect = 34322
+#Effect Key = LM.HO Effect Code = 23 Number of obs for Effect = 23617
+#Effect Key = SI.SI Effect Code = 9 Number of obs for Effect = 21000
+#Effect Key = UF.BV Effect Code = 26 Number of obs for Effect = 16147
+#Effect Key = LM.SF Effect Code = 8 Number of obs for Effect = 11659
+#Effect Key = AN.AN Effect Code = 19 Number of obs for Effect = 11013
+#Effect Key = LM.SI Effect Code = 10 Number of obs for Effect = 10563
+
+#Die ersten Effekten
+#Effect Key = LM.BV Effect Code = 1 Number of obs for Effect = 74443
+#Effect Key = HO.SF Effect Code = 2 Number of obs for Effect = 7237
+#Effect Key = SF.SF Effect Code = 3 Number of obs for Effect = 9975
+#Effect Key = BV.BV Effect Code = 4 Number of obs for Effect = 138694
+#Effect Key = AN.BV Effect Code = 5 Number of obs for Effect = 4116
+#Effect Key = BD.BV Effect Code = 6 Number of obs for Effect = 5823
+#Effect Key = SI.BV Effect Code = 7 Number of obs for Effect = 9074
+#Effect Key = LM.SF Effect Code = 8 Number of obs for Effect = 11659
+#Effect Key = SI.SI Effect Code = 9 Number of obs for Effect = 21000
+#Effect Key = LM.SI Effect Code = 10 Number of obs for Effect = 10563
+```
+
+```{r, include=FALSE}
+rm(list = ls())
+```
+
+## Modellselektion mit dem Merkmal Schlachtgewicht Grossviehmast
+
+Aufpassen die Einheit vom Schlachtgewicht ist nicht kg, sondern kg/100. Dies ist mit der Interpretation der Lösung zu beachten.
+Die Lösung für Schlachtgewicht Grossviehmast `cwao` bei der Modellselektion beobachten:
+
+```{r, echo=FALSE}
+# specify the traits
+ps_response <- c("cwao")
+# specify a vector with columns to be ignored
+vec_ignoring_columns_cw <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding","classifier",
+                              "cccn","ccco","ccan","ccas","ccao","ccvn","ccvo",
+                              "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
+                              "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
+                              "cacn","caco","caan","caas","caao","cavn","cavo",
+                              "ind")
+pvec_ignoring_columns = setdiff(vec_ignoring_columns_cw, ps_response)
+# specify a vector of fixed effects
+pvec_fixeffect_columns <- c("sex","abattoir","yearsaison","breedcomb","Effekt_HeterosisSumHet","Effekt_RekombinationSumRec")
+ps_sample_path <- "../../../../work_ModellSelektion_optimiz/Sample6/fleisch.out"
+pb_trace = FALSE
+```
+
+```{r, include=FALSE}
+tbl_first_sample <- readr::read_delim(file = ps_sample_path, delim = " ", col_types = readr::cols())
+tbl_first_sample <- tbl_first_sample %>% dplyr::select(-c(pvec_ignoring_columns))
+tbl_first_sample <- tbl_first_sample[tbl_first_sample[[ps_response]] != 0,]
+vec_pred <- setdiff(names(tbl_first_sample), ps_response)
+formula.full <- as.formula(paste( ps_response, paste0(vec_pred, collapse = " + "), sep = " ~ "))
+for(fx in pvec_fixeffect_columns){
+  tbl_first_sample[[fx]] <- as.factor(tbl_first_sample[[fx]])
+}
+lm.full.cur <- lm(formula = formula.full, data = tbl_first_sample)
+step_result <- MASS::stepAIC(lm.full.cur, direction = 'backward', trace = pb_trace)
+```
+
+```{r,results='asis', warning=FALSE, echo=FALSE}
+# Write an output with the solution of each fixed effect
+k <- 2
+for(i in 1:length(pvec_fixeffect_columns)){
+  # name of fix effect
+  fx_ef <- pvec_fixeffect_columns[i]
+  # number of model selection solution for this effect
+  n_sol_ms <- length(step_result$xlevels[[fx_ef]])-1
+  # create a tibble per effect
+  tbl_fxef <- tibble::as_tibble(matrix(0, nrow = length(step_result$xlevels[[fx_ef]]), ncol = 2))
+  colnames(tbl_fxef) <- c("effect_level", "solution")
+  tbl_fxef$effect_level[1] <- paste(fx_ef,1,sep = "")
+
+  for(j in 2:length(step_result$xlevels[[fx_ef]])){
+      tbl_fxef$effect_level[j] <- paste(fx_ef,j,sep = "")
+      tbl_fxef$solution[j] <- step_result$coefficients[[k]]
+      k <- k+1
+  }
+  
+  # plot the solution of the effect
+  print(ggplot(tbl_fxef, aes(x=effect_level, y=solution)) +
+              geom_bar(stat = "identity", fill = "blue") +
+              geom_text(aes(label=round(solution,3)), vjust=1.5, colour = "white", size=3.5) +
+              theme(axis.text.x = element_text(angle = 90)) +
+              ggtitle(paste("Lösung von fixen Effekt: ",fx_ef,sep = "")))
+  
+}
+```
+
+Die Effektstuffe 1 von alle Effekte ist immer auf 0 gesetzt. Grund dafür ist, dass das Modell der Unterschied von Effekt2 zu Effekt1, Effekt3 zu Effekt1, etc macht. Beispiel mit Effekt sex wobei die Effektstuffen folgendes bedeuten:
+
+* Effekt sex1 = weiblich
+
+* Effekt sex2 = männlich
+
+* Effekt sex3 = kastrat
+
+Interpretation von dem Resultat von den Balken ist:
+
+* sex2 (männlich) hat einen Effekt von 35.6 kg im Vergleich zum Effekt sex1 (weiblich)
+
+* sex3 (kastrat) hat einen Effekt von 17.7 kg im Vergleich zum Effekt sex1(weiblich)
+
+Die Frage stellt sich nachher für jedem Effekt, ob diese Lösung Sinn machen sei es genetisch wie auch biologisch gesehen?
+
+Dort wo es am meisten Unterschied gibt, ist bei Rassenkombination. Deswegen werden die Phänotypen davon angeschaut.
+
+```{r, echo=FALSE}
+# plot the phenotyp
+print(ggplot(tbl_first_sample, aes(x=breedcomb, y=cwao)) +
+            geom_boxplot() +
+            ggtitle("Analyse vom Phänotyp cwao für den Effekt breedcomb"))
+
+```
+
