@@ -28,23 +28,7 @@ Der Merkmalsblock Schlachtgewicht wurde ausgewählt, da es ist der "sauberste" e
 
 # Analyse
 
-```{r, include=FALSE}
-### # read data
-s_daten <- "../../../../work_ModellSelektion_optimiz/Sample6/fleisch.out"
-tbl_daten <- readr::read_delim(file = s_daten, delim = " ")
-rm(s_daten)
-### # ignore some columns
-tbl_daten <- tbl_daten %>% select(-c(1:8,10:22,28:43))
-```
-
-Die wichtigsten Rassenkombination nach Effektstuffen sortieren: 
-
-```{r, echo=FALSE}
-### # look to the major effect in breedcomb according to the observation
-tbl_daten %>% count(breedcomb, sort = TRUE)
-```
-
-Gemäss `log_CarcassPlausibilisieren` bedeuten die wichtigsten Effekt nach absteigende Anzahl Beobachtung folgendes:
+Die wichtigsten Rassenkombination nach Effektstuffen sortieren. Gemäss `log_CarcassPlausibilisieren` bedeuten die wichtigsten Effekt nach absteigende Anzahl Beobachtung folgendes:
 
 ```{r, echo=TRUE}
 #Absteigende Beobachtung pro Effektstuffe
@@ -58,28 +42,11 @@ Gemäss `log_CarcassPlausibilisieren` bedeuten die wichtigsten Effekt nach abste
 #Effect Key = LM.SF Effect Code = 8 Number of obs for Effect = 11659
 #Effect Key = AN.AN Effect Code = 19 Number of obs for Effect = 11013
 #Effect Key = LM.SI Effect Code = 10 Number of obs for Effect = 10563
-
-#Die ersten Effekten
-#Effect Key = LM.BV Effect Code = 1 Number of obs for Effect = 74443
-#Effect Key = HO.SF Effect Code = 2 Number of obs for Effect = 7237
-#Effect Key = SF.SF Effect Code = 3 Number of obs for Effect = 9975
-#Effect Key = BV.BV Effect Code = 4 Number of obs for Effect = 138694
-#Effect Key = AN.BV Effect Code = 5 Number of obs for Effect = 4116
-#Effect Key = BD.BV Effect Code = 6 Number of obs for Effect = 5823
-#Effect Key = SI.BV Effect Code = 7 Number of obs for Effect = 9074
-#Effect Key = LM.SF Effect Code = 8 Number of obs for Effect = 11659
-#Effect Key = SI.SI Effect Code = 9 Number of obs for Effect = 21000
-#Effect Key = LM.SI Effect Code = 10 Number of obs for Effect = 10563
-```
-
-```{r, include=FALSE}
-rm(list = ls())
 ```
 
 ## Modellselektion mit dem Merkmal Schlachtgewicht Grossviehmast
 
-Aufpassen die Einheit vom Schlachtgewicht ist nicht kg, sondern kg/100. Dies ist mit der Interpretation der Lösung zu beachten.
-Die Lösung für Schlachtgewicht Grossviehmast `cwao` bei der Modellselektion beobachten:
+Aufpassen die Einheit vom Schlachtgewicht ist nicht kg, sondern kg/100. Dies ist mit der Interpretation der Lösung zu beachten. Die Lösung für Schlachtgewicht Grossviehmast `cwao` bei der Modellselektion beobachten.
 
 ```{r, echo=FALSE}
 # specify the traits
@@ -104,12 +71,37 @@ tbl_first_sample <- tbl_first_sample %>% dplyr::select(-c(pvec_ignoring_columns)
 tbl_first_sample <- tbl_first_sample[tbl_first_sample[[ps_response]] != 0,]
 vec_pred <- setdiff(names(tbl_first_sample), ps_response)
 formula.full <- as.formula(paste( ps_response, paste0(vec_pred, collapse = " + "), sep = " ~ "))
+```
+
+Das Modell wo hier betrachtet wird, ist der folgende (Schlachtalter als Covariable):
+
+```{r, echo=FALSE}
+formula.full
+```
+
+```{r, include=FALSE}
 for(fx in pvec_fixeffect_columns){
   tbl_first_sample[[fx]] <- as.factor(tbl_first_sample[[fx]])
 }
 lm.full.cur <- lm(formula = formula.full, data = tbl_first_sample)
 step_result <- MASS::stepAIC(lm.full.cur, direction = 'backward', trace = pb_trace)
 ```
+
+Die Effektstuffe 1 von alle Effekte ist immer auf 0 gesetzt. Grund dafür ist, dass das Modell der Unterschied von Effekt2 zu Effekt1, Effekt3 zu Effekt1, etc macht. Beispiel mit Effekt sex wobei die Effektstuffen folgendes bedeuten:
+
+* Effekt sex1 = weiblich
+
+* Effekt sex2 = männlich
+
+* Effekt sex3 = kastrat
+
+Interpretation von dem Resultat von den Balken ist:
+
+* sex2 (männlich) hat einen Effekt von 35.6 kg im Vergleich zum Effekt sex1 (weiblich)
+
+* sex3 (kastrat) hat einen Effekt von 17.7 kg im Vergleich zum Effekt sex1(weiblich)
+
+Die Frage stellt sich nachher für jedem Effekt, ob diese Lösung Sinn machen sei es genetisch wie auch biologisch gesehen?
 
 ```{r,results='asis', warning=FALSE, echo=FALSE}
 # Write an output with the solution of each fixed effect
@@ -140,22 +132,6 @@ for(i in 1:length(pvec_fixeffect_columns)){
 }
 ```
 
-Die Effektstuffe 1 von alle Effekte ist immer auf 0 gesetzt. Grund dafür ist, dass das Modell der Unterschied von Effekt2 zu Effekt1, Effekt3 zu Effekt1, etc macht. Beispiel mit Effekt sex wobei die Effektstuffen folgendes bedeuten:
-
-* Effekt sex1 = weiblich
-
-* Effekt sex2 = männlich
-
-* Effekt sex3 = kastrat
-
-Interpretation von dem Resultat von den Balken ist:
-
-* sex2 (männlich) hat einen Effekt von 35.6 kg im Vergleich zum Effekt sex1 (weiblich)
-
-* sex3 (kastrat) hat einen Effekt von 17.7 kg im Vergleich zum Effekt sex1(weiblich)
-
-Die Frage stellt sich nachher für jedem Effekt, ob diese Lösung Sinn machen sei es genetisch wie auch biologisch gesehen?
-
 Dort wo es am meisten Unterschied gibt, ist bei Rassenkombination. Deswegen werden die Phänotypen davon angeschaut.
 
 ```{r, echo=FALSE}
@@ -166,3 +142,88 @@ print(ggplot(tbl_first_sample, aes(x=breedcomb, y=cwao)) +
 
 ```
 
+```{r, echo=TRUE}
+#Coding the effect BREED COMBINATION (SIRE X DAM)...
+
+#Effect Key = AN.AN Effect Code = 19 
+#Effect Key = AN.BV Effect Code = 5 
+#Effect Key = AN.INC Effect Code = 18
+#Effect Key = AN.KR Effect Code = 22 
+#Effect Key = BB.BV Effect Code = 25 
+#Effect Key = BB.HO Effect Code = 30 
+#Effect Key = BD.BV Effect Code = 6 
+#Effect Key = BV.BV Effect Code = 4 
+#Effect Key = CH.BV Effect Code = 21 
+#Effect Key = HO.HO Effect Code = 15 
+#Effect Key = HO.SF Effect Code = 2 
+#Effect Key = LM.AL Effect Code = 28 
+#Effect Key = LM.BV Effect Code = 1 
+#Effect Key = LM.HO Effect Code = 23 
+#Effect Key = LM.INC Effect Code = 20
+#Effect Key = LM.KR Effect Code = 16 
+#Effect Key = LM.LM Effect Code = 14 
+#Effect Key = LM.OB Effect Code = 17 
+#Effect Key = LM.SF Effect Code = 8 
+#Effect Key = LM.SI Effect Code = 10 
+#Effect Key = MO.MO Effect Code = 27 
+#Effect Key = OB.BV Effect Code = 13 
+#Effect Key = OB.OB Effect Code = 12 
+#Effect Key = SF.HO Effect Code = 24 
+#Effect Key = SF.SF Effect Code = 3 
+#Effect Key = SI.BV Effect Code = 7 
+#Effect Key = SI.SF Effect Code = 11 
+#Effect Key = SI.SI Effect Code = 9 
+#Effect Key = UF.BV Effect Code = 26 
+#Effect Key = UF.HO Effect Code = 29 
+#Effect Key = UF.SF Effect Code = 31 
+```
+
+Die Lösung von Rassenkombination haben einen Einfluss bis 21 kg. Diese Varianz sowie die Lösung von dem Effekt zeigt die Wichtigkeit. 
+
+```{r, echo=TRUE}
+#Part of the code in codeEff_HetRec.f90
+#! Heterosis / Heterozygotie codieren
+
+#    if(rHet_SumHet(indcid14(ind))==0.0)then
+#      iHet_SumHet_Code(i)=2 ! 100% Reinzucht
+#    elseif(rHet_SumHet(indcid14(ind))>0.0 .AND. rHet_SumHet(indcid14(ind))<=0.2)then
+#      iHet_SumHet_Code(i)=3
+#    elseif(rHet_SumHet(indcid14(ind))>0.2 .AND. rHet_SumHet(indcid14(ind))<=0.4)then
+#      iHet_SumHet_Code(i)=4 ! 0.25 87.5%12.5%
+#    elseif(rHet_SumHet(indcid14(ind))>0.4 .AND. rHet_SumHet(indcid14(ind))<=0.6)then
+#      iHet_SumHet_Code(i)=5 ! 0.5 oft Fall von VMS Produktion 75%25%
+#    elseif(rHet_SumHet(indcid14(ind))>0.6 .AND. rHet_SumHet(indcid14(ind))<=0.8)then
+#      iHet_SumHet_Code(i)=6 ! 0.75 oft Fall von SF
+#    elseif(rHet_SumHet(indcid14(ind))>0.8)then
+#      iHet_SumHet_Code(i)=7 ! 1 ist für 50%50%
+#    elseif(rHet_SumHet(indcid14(ind))==-9.99)then  
+#      iHet_SumHet_Code(i)=1 ! Fuer das Tier konnte kein Heterosiseffektkoeffizient berechnet werden
+```
+
+Die Resultate von der Einfluss von dem fixen Effekt für Schlachtgewicht entspricht nicht die Erwartungen auf 2 Punkten:
+
+* der Einfluss geht nur bis 6 kg. Ich hätte persönlich eine ähnliche Varianz der Lösung wie bei der Rassenkombination erwartet.
+
+* die Lösung machen meiner Ansicht nach keinen Sinn. Ich hätte erwartet einen höhere Einfluss für F1 (Effektcode 7) und F2 (Effektcode 5)
+
+```{r}
+#Part of the code in codeEff_HetRec.f90
+#! Rekombination codieren
+
+#    if(rRec_SumRec(indcid14(ind))==0.0)then
+#      iRec_SumRec_Code(i)=2 ! 0 ist der Fall 100% Reinzucht
+#    elseif(rRec_SumRec(indcid14(ind))>0.0 .AND. rRec_SumRec(indcid14(ind))<=0.1)then
+#      iRec_SumRec_Code(i)=3
+#    elseif(rRec_SumRec(indcid14(ind))>0.1 .AND. rRec_SumRec(indcid14(ind))<=0.2)then
+#      iRec_SumRec_Code(i)=4 ! 0.18 oft Fall SF oder 87.5%12.5%
+#    elseif(rRec_SumRec(indcid14(ind))>0.2 .AND. rRec_SumRec(indcid14(ind))<=0.3)then
+#      iRec_SumRec_Code(i)=5 ! 0.25 oft Fall von VMS Produktion 75%25%
+#    elseif(rRec_SumRec(indcid14(ind))>0.3 .AND. rRec_SumRec(indcid14(ind))<=0.4)then
+#      iRec_SumRec_Code(i)=6
+#    elseif(rRec_SumRec(indcid14(ind))>0.4)then
+#      iRec_SumRec_Code(i)=7
+#    elseif(rRec_SumRec(indcid14(ind))==-9.99)then  
+#      iRec_SumRec_Code(i)=1 ! Fuer das Tier konnte kein Rekombinationseffektkoeffizient berechnet werden
+```
+
+Der Einfluss von dem fixen Effekt Rekombination ist marginal.
