@@ -1,0 +1,69 @@
+---
+title: "Modellselektion"
+output: rmarkdown::html_vignette
+params:
+  dir: ""
+  loop_part: ""
+  num_sample: ""
+  filename: ""
+  traits: ""
+  colnames2ignore : ""
+  fixeffects:
+vignette: >
+  %\VignetteIndexEntry{Modellselektion}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ModelSelection)
+```
+
+
+# Hintergrund
+Modellselektion für fixe lineare Modelle wird mit `MASS::stepAIC()` gemacht. Dieses Package bietet Funktionalität zur Zusammenstellung von Modellselektionsresultaten über verschiedene Stichprobendatensätze. Die Zusammenstellung der Resultate ist in der Funktion `collect_stepAIC_results` umgesetzt.
+
+```{r, echo=FALSE}
+# get vector with sample data
+n_nr_sample <- params$num_sample
+s_dir_path <- params$dir
+vec_sample_files <- params$filename
+s_loop_part <- params$loop_part
+
+vec_sample_dir <- sapply(1:n_nr_sample, 
+                        function(x) paste0(s_dir_path,s_loop_part, x, collapse = ""), 
+                        USE.NAMES = FALSE)
+vec_sample_path <- file.path(vec_sample_dir, vec_sample_files)
+if (!all(file.exists(vec_sample_path)))
+  stop(" * ERROR: Cannot find sample data file: ", vec_sample_path)
+
+# specify the traits
+vec_reponse <- params$traits
+
+# specify a vector with columns to be ignored (incl. the traits)
+vec_ignoring_columns <- params$colnames2ignore
+
+# specify a vector of fixed effects
+vec_fixeffect_columns <- params$fixeffects
+```
+
+```{r,results='asis', warning=FALSE, echo=FALSE}
+for(s_response in vec_reponse){
+  
+  tbl_collected_results <- collect_stepAIC_results(pvec_sample = vec_sample_path,
+                                                   ps_response = s_response,
+                                                   pvec_ignoring_columns = setdiff(vec_ignoring_columns, s_response),
+                                                   pvec_fixeffect_columns = vec_fixeffect_columns)
+  
+  print(knitr::kable(tbl_collected_results, caption = s_response))
+  
+}
+```
+

@@ -37,7 +37,7 @@ vec_sample_path <- c(system.file("extdata", "sample1","fleisch.out", package = "
 if (!all(file.exists(vec_sample_path)))
   stop(" * ERROR: Cannot find sample data file: ", vec_sample_path)
 
-# specify a vector with columns to be ignored
+# specify a vector with columns to be ignored (incl. the traits)
 vec_ignoring_columns <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding",
                           "cccn","ccco","ccan","ccas","ccvn","ccvo",
                           "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
