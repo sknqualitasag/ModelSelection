@@ -9,7 +9,9 @@
 #' @description
 #' For very large datasets model selection is done on smaller subsamples of the
 #' complete dataset. Given the subsamples, model selection is run and a set
-#' of results is collected.
+#' of results is collected. This function is not suitable because the package olsrr
+#' can only be used for regression models (models with covariables only).
+#' Therefore it does not make sense to use fixed effects (factors) in olsrr model selection.
 #'
 #' @details
 #' Currently model selection is done using \code{olsrr::ols_step_backward_aic()}
