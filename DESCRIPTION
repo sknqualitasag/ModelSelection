@@ -1,16 +1,17 @@
 Package: ModelSelection
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.1.0
+Title: Pre-Processing Of Date Before Variance Component Estimation
+Version: 0.0.0
+Date: 2020-05-28
+Authors@R: c(
+  person("Sophie","Kunz", email = "sophie.kunz@qualitasag.ch", role = c("aut")),
+  person("Peter", "von Rohr", email = "peter.vonrohr@qualitasag.ch", role = c("aut","cre")))
+Maintainer: Peter von Rohr <peter.vonrohr@qualitasag.ch>
+Description: Pre-Processing of data before variance component estimation. The main objective is to make a model selection in order to determine the best model for a trait.
+License: GPL (>= 2)
 Suggests: 
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+RoxygenNote: 7.1.0
+URL: https://sknqualitasag.github.io/ModelSelection, https://github.com/sknqualitasag/ModelSelection
