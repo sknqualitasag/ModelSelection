@@ -227,3 +227,220 @@ Die Resultate von der Einfluss von dem fixen Effekt für Schlachtgewicht entspri
 ```
 
 Der Einfluss von dem fixen Effekt Rekombination ist marginal.
+
+```{r, include=FALSE}
+rm(list = ls())
+```
+
+## Modellselektion mit dem Merkmal Schlachtgewicht Kälbermast
+
+```{r, echo=FALSE}
+# specify the traits
+ps_response <- c("cwco")
+# specify a vector with columns to be ignored
+vec_ignoring_columns_cw <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding","classifier",
+                              "cccn","ccco","ccan","ccas","ccao","ccvn","ccvo",
+                              "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
+                              "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
+                              "cacn","caco","caan","caas","caao","cavn","cavo",
+                              "ind")
+pvec_ignoring_columns = setdiff(vec_ignoring_columns_cw, ps_response)
+# specify a vector of fixed effects
+pvec_fixeffect_columns <- c("sex","abattoir","yearsaison","breedcomb","Effekt_HeterosisSumHet","Effekt_RekombinationSumRec")
+ps_sample_path <- "../../../../work_ModellSelektion_optimiz/Sample6/fleisch.out"
+pb_trace = FALSE
+
+tbl_first_sample <- readr::read_delim(file = ps_sample_path, delim = " ", col_types = readr::cols())
+tbl_first_sample <- tbl_first_sample %>% dplyr::select(-c(pvec_ignoring_columns))
+tbl_first_sample <- tbl_first_sample[tbl_first_sample[[ps_response]] != 0,]
+vec_pred <- setdiff(names(tbl_first_sample), ps_response)
+formula.full <- as.formula(paste( ps_response, paste0(vec_pred, collapse = " + "), sep = " ~ "))
+
+for(fx in pvec_fixeffect_columns){
+  tbl_first_sample[[fx]] <- as.factor(tbl_first_sample[[fx]])
+}
+lm.full.cur <- lm(formula = formula.full, data = tbl_first_sample)
+step_result <- MASS::stepAIC(lm.full.cur, direction = 'backward', trace = pb_trace)
+```
+
+```{r,results='asis', warning=FALSE, echo=FALSE}
+# Write an output with the solution of each fixed effect
+k <- 2
+for(i in 1:length(pvec_fixeffect_columns)){
+  # name of fix effect
+  fx_ef <- pvec_fixeffect_columns[i]
+  # number of model selection solution for this effect
+  n_sol_ms <- length(step_result$xlevels[[fx_ef]])-1
+  # create a tibble per effect
+  tbl_fxef <- tibble::as_tibble(matrix(0, nrow = length(step_result$xlevels[[fx_ef]]), ncol = 2))
+  colnames(tbl_fxef) <- c("effect_level", "solution")
+  tbl_fxef$effect_level[1] <- paste(fx_ef,1,sep = "")
+
+  for(j in 2:length(step_result$xlevels[[fx_ef]])){
+      tbl_fxef$effect_level[j] <- paste(fx_ef,j,sep = "")
+      tbl_fxef$solution[j] <- step_result$coefficients[[k]]
+      k <- k+1
+  }
+  
+  # plot the solution of the effect
+  print(ggplot(tbl_fxef, aes(x=effect_level, y=solution)) +
+              geom_bar(stat = "identity", fill = "blue") +
+              geom_text(aes(label=round(solution,3)), vjust=1.5, colour = "white", size=3.5) +
+              theme(axis.text.x = element_text(angle = 90)) +
+              ggtitle(paste("Lösung von fixen Effekt: ",fx_ef,sep = "")))
+  
+}
+```
+
+```{r, echo=FALSE}
+# plot the phenotyp
+print(ggplot(tbl_first_sample, aes(x=breedcomb, y=cwco)) +
+            geom_boxplot() +
+            ggtitle("Analyse vom Phänotyp cwco für den Effekt breedcomb"))
+
+```
+
+```{r, include=FALSE}
+rm(list = ls())
+```
+
+## Modellselektion mit dem Merkmal Schlachtgewicht Natura-Veal
+
+```{r, echo=FALSE}
+# specify the traits
+ps_response <- c("cwcn")
+# specify a vector with columns to be ignored
+vec_ignoring_columns_cw <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding","classifier",
+                              "cccn","ccco","ccan","ccas","ccao","ccvn","ccvo",
+                              "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
+                              "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
+                              "cacn","caco","caan","caas","caao","cavn","cavo",
+                              "ind")
+pvec_ignoring_columns = setdiff(vec_ignoring_columns_cw, ps_response)
+# specify a vector of fixed effects
+pvec_fixeffect_columns <- c("sex","abattoir","yearsaison","breedcomb","Effekt_HeterosisSumHet","Effekt_RekombinationSumRec")
+ps_sample_path <- "../../../../work_ModellSelektion_optimiz/Sample6/fleisch.out"
+pb_trace = FALSE
+
+tbl_first_sample <- readr::read_delim(file = ps_sample_path, delim = " ", col_types = readr::cols())
+tbl_first_sample <- tbl_first_sample %>% dplyr::select(-c(pvec_ignoring_columns))
+tbl_first_sample <- tbl_first_sample[tbl_first_sample[[ps_response]] != 0,]
+vec_pred <- setdiff(names(tbl_first_sample), ps_response)
+formula.full <- as.formula(paste( ps_response, paste0(vec_pred, collapse = " + "), sep = " ~ "))
+
+for(fx in pvec_fixeffect_columns){
+  tbl_first_sample[[fx]] <- as.factor(tbl_first_sample[[fx]])
+}
+lm.full.cur <- lm(formula = formula.full, data = tbl_first_sample)
+step_result <- MASS::stepAIC(lm.full.cur, direction = 'backward', trace = pb_trace)
+```
+
+```{r,results='asis', warning=FALSE, echo=FALSE}
+# Write an output with the solution of each fixed effect
+k <- 2
+for(i in 1:length(pvec_fixeffect_columns)){
+  # name of fix effect
+  fx_ef <- pvec_fixeffect_columns[i]
+  # number of model selection solution for this effect
+  n_sol_ms <- length(step_result$xlevels[[fx_ef]])-1
+  # create a tibble per effect
+  tbl_fxef <- tibble::as_tibble(matrix(0, nrow = length(step_result$xlevels[[fx_ef]]), ncol = 2))
+  colnames(tbl_fxef) <- c("effect_level", "solution")
+  tbl_fxef$effect_level[1] <- paste(fx_ef,1,sep = "")
+
+  for(j in 2:length(step_result$xlevels[[fx_ef]])){
+      tbl_fxef$effect_level[j] <- paste(fx_ef,j,sep = "")
+      tbl_fxef$solution[j] <- step_result$coefficients[[k]]
+      k <- k+1
+  }
+  
+  # plot the solution of the effect
+  print(ggplot(tbl_fxef, aes(x=effect_level, y=solution)) +
+              geom_bar(stat = "identity", fill = "blue") +
+              geom_text(aes(label=round(solution,3)), vjust=1.5, colour = "white", size=3.5) +
+              theme(axis.text.x = element_text(angle = 90)) +
+              ggtitle(paste("Lösung von fixen Effekt: ",fx_ef,sep = "")))
+  
+}
+```
+
+```{r, echo=FALSE}
+# plot the phenotyp
+print(ggplot(tbl_first_sample, aes(x=breedcomb, y=cwcn)) +
+            geom_boxplot() +
+            ggtitle("Analyse vom Phänotyp cwcn für den Effekt breedcomb"))
+
+```
+
+
+```{r, include=FALSE}
+rm(list = ls())
+```
+
+## Modellselektion mit dem Merkmal Schlachtgewicht Natura-Beef
+
+```{r, echo=FALSE}
+# specify the traits
+ps_response <- c("cwan")
+# specify a vector with columns to be ignored
+vec_ignoring_columns_cw <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding","classifier",
+                              "cccn","ccco","ccan","ccas","ccao","ccvn","ccvo",
+                              "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
+                              "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
+                              "cacn","caco","caan","caas","caao","cavn","cavo",
+                              "ind")
+pvec_ignoring_columns = setdiff(vec_ignoring_columns_cw, ps_response)
+# specify a vector of fixed effects
+pvec_fixeffect_columns <- c("sex","abattoir","yearsaison","breedcomb","Effekt_HeterosisSumHet","Effekt_RekombinationSumRec")
+ps_sample_path <- "../../../../work_ModellSelektion_optimiz/Sample6/fleisch.out"
+pb_trace = FALSE
+
+tbl_first_sample <- readr::read_delim(file = ps_sample_path, delim = " ", col_types = readr::cols())
+tbl_first_sample <- tbl_first_sample %>% dplyr::select(-c(pvec_ignoring_columns))
+tbl_first_sample <- tbl_first_sample[tbl_first_sample[[ps_response]] != 0,]
+vec_pred <- setdiff(names(tbl_first_sample), ps_response)
+formula.full <- as.formula(paste( ps_response, paste0(vec_pred, collapse = " + "), sep = " ~ "))
+
+for(fx in pvec_fixeffect_columns){
+  tbl_first_sample[[fx]] <- as.factor(tbl_first_sample[[fx]])
+}
+lm.full.cur <- lm(formula = formula.full, data = tbl_first_sample)
+step_result <- MASS::stepAIC(lm.full.cur, direction = 'backward', trace = pb_trace)
+```
+
+```{r,results='asis', warning=FALSE, echo=FALSE}
+# Write an output with the solution of each fixed effect
+k <- 2
+for(i in 1:length(pvec_fixeffect_columns)){
+  # name of fix effect
+  fx_ef <- pvec_fixeffect_columns[i]
+  # number of model selection solution for this effect
+  n_sol_ms <- length(step_result$xlevels[[fx_ef]])-1
+  # create a tibble per effect
+  tbl_fxef <- tibble::as_tibble(matrix(0, nrow = length(step_result$xlevels[[fx_ef]]), ncol = 2))
+  colnames(tbl_fxef) <- c("effect_level", "solution")
+  tbl_fxef$effect_level[1] <- paste(fx_ef,1,sep = "")
+
+  for(j in 2:length(step_result$xlevels[[fx_ef]])){
+      tbl_fxef$effect_level[j] <- paste(fx_ef,j,sep = "")
+      tbl_fxef$solution[j] <- step_result$coefficients[[k]]
+      k <- k+1
+  }
+  
+  # plot the solution of the effect
+  print(ggplot(tbl_fxef, aes(x=effect_level, y=solution)) +
+              geom_bar(stat = "identity", fill = "blue") +
+              geom_text(aes(label=round(solution,3)), vjust=1.5, colour = "white", size=3.5) +
+              theme(axis.text.x = element_text(angle = 90)) +
+              ggtitle(paste("Lösung von fixen Effekt: ",fx_ef,sep = "")))
+  
+}
+```
+
+```{r, echo=FALSE}
+# plot the phenotyp
+print(ggplot(tbl_first_sample, aes(x=breedcomb, y=cwan)) +
+            geom_boxplot() +
+            ggtitle("Analyse vom Phänotyp cwan für den Effekt breedcomb"))
+
+```
