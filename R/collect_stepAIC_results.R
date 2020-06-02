@@ -83,7 +83,7 @@ collect_stepAIC_results <- function(pvec_sample, ps_response,
         tbl_cur_sample[[fx]] <- as.factor(tbl_cur_sample[[fx]])
         # check whether there are sufficient number of levels in the fixed effect fx
         if (nlevels(tbl_cur_sample[[fx]]) < 2)
-          stop(" * ERROR in collect_stepAIC_results: fixed effect ", fx, " has insufficient number of levels: ", nlevels(tbl_cur_sample[[fx]]))
+          stop(" * ERROR in collect_stepAIC_results: fixed effect ", fx, " in dataset ", pvec_sample[sidx], " has insufficient number of levels: ", nlevels(tbl_cur_sample[[fx]]))
       }
     }
     lm.full.cur <- lm(formula = formula.full, data = tbl_cur_sample)
