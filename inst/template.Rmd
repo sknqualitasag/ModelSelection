@@ -8,7 +8,7 @@ params:
   filename: ""
   traits: ""
   colnames2ignore : ""
-  fixeffects:
+  fixeffects: ""
 vignette: >
   %\VignetteIndexEntry{Modellselektion}
   %\VignetteEngine{knitr::rmarkdown}

@@ -1,0 +1,11 @@
+list(dir = "/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/",
+    loop_part = "sample",
+    num_sample = 2,
+    filename = "fleisch.out",
+    traits = c("ccan", "cwan"),
+    colnames2ignore = c("herdyear","herd", "prodsystem", "calfcull", "controlcull", "ageVK","slaughterCategory", "branding",
+    "cccn", "ccco", "ccan", "ccas", "ccao", "ccvn", "ccvo",
+    "cwcn", "cwco", "cwan", "cwas", "cwao", "cwvn", "cwvo",
+    "cfcn", "cfco", "cfan", "cfas", "cfao", "cfvn", "cfvo",
+    "cacn", "caco", "caan", "caas", "caao", "cavn", "cavo","ind"),
+    fixeffects = c("sex", "abattoir", "classifier", "yearsaison","breedcomb", "Effekt_HeterosisSumHet", "Effekt_RekombinationSumRec"))
