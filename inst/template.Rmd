@@ -30,6 +30,8 @@ library(ModelSelection)
 # Hintergrund
 Modellselektion für fixe lineare Modelle wird mit `MASS::stepAIC()` gemacht. Dieses Package bietet Funktionalität zur Zusammenstellung von Modellselektionsresultaten über verschiedene Stichprobendatensätze. Die Zusammenstellung der Resultate ist in der Funktion `collect_stepAIC_results` umgesetzt.
 
+# Zusammenstellung der Resultate
+
 ```{r, echo=FALSE}
 # get vector with sample data
 n_nr_sample <- params$num_sample

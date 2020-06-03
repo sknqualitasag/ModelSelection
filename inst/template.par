@@ -2,7 +2,7 @@ list(dir = file.path(here::here(), 'inst', 'extdata'), #"/Users/skn/muku_Carcass
     loop_part = "sample",
     num_sample = 2,
     filename = "fleisch.out",
-    traits = c("ccan", "cwan"),
+    traits = c("ccao","cccn"),
     colnames2ignore = c("herdyear","herd", "prodsystem", "calfcull", "controlcull", "ageVK","slaughterCategory", "branding",
     "cccn", "ccco", "ccan", "ccas", "ccao", "ccvn", "ccvo",
     "cwcn", "cwco", "cwan", "cwas", "cwao", "cwvn", "cwvo",
