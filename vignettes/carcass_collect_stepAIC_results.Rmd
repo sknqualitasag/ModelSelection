@@ -114,7 +114,7 @@ list(dir = "/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/",
 
 Sobald, dass das RPackage installiert ist, könnt ihr das Template auf den Terminal mit diesem Befehl ausführen:
 
-```{r, eval=FALSE}
-R -e "rmarkdown::render('packagedir/template.Rmd', params = dget(file = 'pardir/template.par'), output_dir = 'outputdir')"
+```{bash, eval=FALSE}
+R -e "rmarkdown::render(file.path(system.file(package = 'ModelSelection'), 'template.Rmd'), params = dget(file = 'pardir/template.par'), output_dir = 'outputdir')"
 ```
 
