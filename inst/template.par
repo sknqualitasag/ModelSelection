@@ -1,4 +1,4 @@
-list(dir = "/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/",
+list(dir = file.path(here::here(), 'inst', 'extdata'), #"/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/",
     loop_part = "sample",
     num_sample = 2,
     filename = "fleisch.out",
