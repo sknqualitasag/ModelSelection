@@ -87,6 +87,8 @@ collect_stepAIC_results <- function(pvec_sample, ps_response,
       }
     }
     lm.full.cur <- lm(formula = formula.full, data = tbl_cur_sample)
+    if(AIC(lm.full.cur) == -Inf)
+      stop(" *ERROR in collect_stepAIC_results: AIC is -Inf")
     step_result <- MASS::stepAIC(lm.full.cur, direction = 'backward', trace = pb_trace)
     tbl_result[sidx, labels(terms(step_result))] <- 1
     tbl_result[sidx, "AIC"] <- step_result$anova$AIC[length(step_result$anova$AIC)]

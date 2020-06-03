@@ -39,7 +39,7 @@ if (!all(file.exists(vec_sample_path)))
 
 # specify a vector with columns to be ignored (incl. the traits)
 vec_ignoring_columns <- c("herdyear","herd","prodsystem","calfcull","controlcull","ageVK","slaughterCategory","branding",
-                          "cccn","ccco","ccan","ccas","ccvn","ccvo",
+                          "cccn","ccco","ccan","ccas","ccao","ccvn","ccvo",
                           "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
                           "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
                           "cacn","caco","caan","caas","caao","cavn","cavo",
@@ -50,16 +50,71 @@ vec_fixeffect_columns <- c("sex","abattoir","classifier","yearsaison","breedcomb
 
 # specify response
 s_response <- "ccao"
-
-tbl_collected_results <- collect_stepAIC_results(pvec_sample = vec_sample_path,
-                                                 ps_response = s_response,
-                                                 pvec_ignoring_columns = vec_ignoring_columns,
-                                                 pvec_fixeffect_columns = vec_fixeffect_columns)
 ```
 
-The results are shown in the following table
+```{r, echo=TRUE, warning=FALSE}
+# call function
+tbl_collected_results <- collect_stepAIC_results(pvec_sample = vec_sample_path,
+                                                 ps_response = s_response,
+                                                 pvec_ignoring_columns = setdiff(vec_ignoring_columns, s_response),
+                                                 pvec_fixeffect_columns = vec_fixeffect_columns)
+
+```
+
+Definition von dem Modell wird
+
+* für die fixen Effekte in 'pvec_fixeffect_columns'
+
+* für die Merkmale in 'ps_response' 
+
+* für die Covariable implizit, indem sie weder in 'pvec_fixeffect_columns' noch in 'pvec_ignoring_columns' vorhanden sind.
+
+Alles andere unnötige Informationen, wo in dem Datensatz sich befindet, wird in 'pvec_ignoring_columns' gespeichert.
 
 ```{r echo=FALSE}
-knitr::kable(tbl_collected_results)
+knitr::kable(tbl_collected_results, caption = s_response)
+```
+
+Die Resultaten pro Merkmale sind in der Tabelle aufgezeigt. Pro Stichprobe (Sample) wird eine Zeile herstellt. Das optimale Modell für jede Stichprobe ist erischtlich, indem die fixen Effekte und/oder Covariable ein eins zugewiesen ist. Anschliessend ist die Zusammenstellung von Modellselektionsresultaten über verschiedene Stichprobendatensätze ersichtlich und es kann entscheiden werden, welche fixen Effekt und/oder Covariable behalten werden sollen.
+
+# Template
+Es besteht ein Template, welches mit einem Parameter-File ab dem Terminal ausgeführt werden kann, um ein HTML-Dokument mit der Zusammenstellung von Modellselektionsresultaten über verschiedene Stichprobendatensätze darzustellen. 
+
+Um dieses Template zu verwenden, müsst ihr ein Paramter-File mit Ihren Angaben herstellen. Das Parameter-File muss folgende Angaben haben:
+
+* dir = Pfad wo sich die Daten für Modellselektion befinen
+
+* loop_part = Pfad-Teil, wo es soll darauf loopen
+
+* num_sample = Anzahl Stichproben
+
+* filename = File Name
+
+* traits = Merkmalsname
+
+* fixeffects = Name des fixen Effekten
+
+* colnames2ignore = Spalte zu ignorieren (Aufpassen: dazu soll die Merkmalsnamen intergriert sein)
+
+Dann sieht der Parameter-File so aus:
+
+```{r, eval=FALSE}
+list(dir = "/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/",
+    loop_part = "sample",
+    num_sample = 2,
+    filename = "fleisch.out",
+    traits = c("ccao"),
+    colnames2ignore = c("herdyear","herd", "prodsystem", "calfcull", "controlcull", "ageVK","slaughterCategory", "branding",
+    "cccn", "ccco", "ccan", "ccas", "ccao", "ccvn", "ccvo",
+    "cwcn", "cwco", "cwan", "cwas", "cwao", "cwvn", "cwvo",
+    "cfcn", "cfco", "cfan", "cfas", "cfao", "cfvn", "cfvo",
+    "cacn", "caco", "caan", "caas", "caao", "cavn", "cavo","ind"),
+    fixeffects = c("sex", "abattoir", "classifier", "yearsaison","breedcomb", "Effekt_HeterosisSumHet", "Effekt_RekombinationSumRec"))
+```
+
+Sobald, dass das RPackage installiert ist, könnt ihr das Template auf den Terminal mit diesem Befehl ausführen:
+
+```{r, eval=FALSE}
+R -e "rmarkdown::render('packagedir/template.Rmd', params = dget(file = 'pardir/template.par'), output_dir = 'outputdir')"
 ```
 
