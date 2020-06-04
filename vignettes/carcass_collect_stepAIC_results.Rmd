@@ -42,8 +42,7 @@ vec_ignoring_columns <- c("herdyear","herd","prodsystem","calfcull","controlcull
                           "cccn","ccco","ccan","ccas","ccao","ccvn","ccvo",
                           "cwcn","cwco","cwan","cwas","cwao","cwvn","cwvo",
                           "cfcn","cfco","cfan","cfas","cfao","cfvn","cfvo",
-                          "cacn","caco","caan","caas","caao","cavn","cavo",
-                          "ind")
+                          "cacn","caco","caan","caas","caao","cavn","cavo")
 
 # specify a vector of fixed effects
 vec_fixeffect_columns <- c("sex","abattoir","classifier","yearsaison","breedcomb","Effekt_HeterosisSumHet","Effekt_RekombinationSumRec")
@@ -82,13 +81,7 @@ Es besteht ein Template, welches mit einem Parameter-File ab dem Terminal ausgef
 
 Um dieses Template zu verwenden, müsst ihr ein Paramter-File mit Ihren Angaben herstellen. Das Parameter-File muss folgende Angaben haben:
 
-* dir = Pfad wo sich die Daten für Modellselektion befinen
-
-* loop_part = Pfad-Teil, wo es soll darauf loopen
-
-* num_sample = Anzahl Stichproben
-
-* filename = File Name
+* dir = Pfad wo sich die Daten für Modellselektion befinden
 
 * traits = Merkmalsname
 
@@ -99,22 +92,19 @@ Um dieses Template zu verwenden, müsst ihr ein Paramter-File mit Ihren Angaben 
 Dann sieht der Parameter-File so aus:
 
 ```{r, eval=FALSE}
-list(dir = "/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/",
-    loop_part = "sample",
-    num_sample = 2,
-    filename = "fleisch.out",
-    traits = c("ccao"),
+list(dir = c("/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/sample1/fleisch.out","/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/sample2/fleisch.out"),
+    traits = c("ccao","cccn"),
     colnames2ignore = c("herdyear","herd", "prodsystem", "calfcull", "controlcull", "ageVK","slaughterCategory", "branding",
     "cccn", "ccco", "ccan", "ccas", "ccao", "ccvn", "ccvo",
     "cwcn", "cwco", "cwan", "cwas", "cwao", "cwvn", "cwvo",
     "cfcn", "cfco", "cfan", "cfas", "cfao", "cfvn", "cfvo",
-    "cacn", "caco", "caan", "caas", "caao", "cavn", "cavo","ind"),
+    "cacn", "caco", "caan", "caas", "caao", "cavn", "cavo"),
     fixeffects = c("sex", "abattoir", "classifier", "yearsaison","breedcomb", "Effekt_HeterosisSumHet", "Effekt_RekombinationSumRec"))
 ```
 
-Sobald, dass das RPackage installiert ist, könnt ihr das Template auf den Terminal mit diesem Befehl ausführen:
+Sobald, dass das RPackage installiert ist, könnt ihr das Template auf den Terminal mit diesem Befehl ausführen, wobei pardir und outdir müsst ihr angeben:
 
 ```{bash, eval=FALSE}
-R -e "rmarkdown::render(file.path(system.file(package = 'ModelSelection'), 'template.Rmd'), params = dget(file = 'pardir/template.par'), output_dir = 'outputdir')"
+R -e "rmarkdown::render(file.path(system.file(package = 'ModelSelection'), 'template.Rmd'), params = dget(file = 'pardir/template.par'), output_dir = 'outdir')"
 ```
 

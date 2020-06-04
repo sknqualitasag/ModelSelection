@@ -3,9 +3,6 @@ title: "Modellselektion"
 output: rmarkdown::html_vignette
 params:
   dir: ""
-  loop_part: ""
-  num_sample: ""
-  filename: ""
   traits: ""
   colnames2ignore : ""
   fixeffects: ""
@@ -34,15 +31,7 @@ Modellselektion für fixe lineare Modelle wird mit `MASS::stepAIC()` gemacht. Di
 
 ```{r, echo=FALSE}
 # get vector with sample data
-n_nr_sample <- params$num_sample
-s_dir_path <- params$dir
-vec_sample_files <- params$filename
-s_loop_part <- params$loop_part
-
-vec_sample_dir <- sapply(1:n_nr_sample, 
-                        function(x) paste0(file.path(s_dir_path, s_loop_part), x, collapse = ""), 
-                        USE.NAMES = FALSE)
-vec_sample_path <- file.path(vec_sample_dir, vec_sample_files)
+vec_sample_path <- params$dir
 if (!all(file.exists(vec_sample_path)))
   stop(" * ERROR: Cannot find sample data file: ", vec_sample_path)
 
