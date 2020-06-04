@@ -1,7 +1,7 @@
 Package: ModelSelection
 Type: Package
 Title: Pre-Processing Of Date Before Variance Component Estimation
-Version: 0.0.0
+Version: 0.0.1
 Date: 2020-05-28
 Authors@R: c(
   person("Sophie","Kunz", email = "sophie.kunz@qualitasag.ch", role = c("aut")),
