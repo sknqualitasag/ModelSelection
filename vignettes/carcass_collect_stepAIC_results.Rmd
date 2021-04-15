@@ -81,11 +81,11 @@ Es besteht ein Template, welches mit einem Parameter-File ab dem Terminal ausgef
 
 Um dieses Template zu verwenden, müsst ihr ein Paramter-File mit Ihren Angaben herstellen. Das Parameter-File muss folgende Angaben haben:
 
-* dir = Pfad wo sich die Daten für Modellselektion befinden
+* dir = Pfad wo sich die Daten für die Modellselektion befinden
 
 * traits = Merkmalsname
 
-* fixeffects = Name des fixen Effekten
+* fixeffects = Name der fixen Effekte, wobei wichtig ist, dass diese als Kolonnen-Header im Datenfile vorkommen
 
 * colnames2ignore = Spalte zu ignorieren (Aufpassen: dazu soll die Merkmalsnamen intergriert sein)
 
@@ -105,6 +105,6 @@ list(dir = c("/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/sample1/f
 Sobald, dass das RPackage installiert ist, könnt ihr das Template auf den Terminal mit diesem Befehl ausführen, wobei pardir und outdir müsst ihr angeben:
 
 ```{bash, eval=FALSE}
-R -e "rmarkdown::render(file.path(system.file(package = 'ModelSelection'), 'template.Rmd'), params = dget(file = 'pardir/template.par'), output_dir = 'outdir')"
+R -e "rmarkdown::render(system.file('extdata', 'rmd', 'template.Rmd', package = 'ModelSelection'), params = dget(file = 'pardir/template.par'), output_dir = 'outdir')"
 ```
 
