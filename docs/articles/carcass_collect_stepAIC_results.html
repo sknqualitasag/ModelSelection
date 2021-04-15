@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ModelSelection</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
       </span>
     </div>
 
@@ -39,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -65,7 +65,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/sknqualitasag/ModelSelection/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -79,7 +79,7 @@
 
       
 
-      </header><div class="row">
+      </header><script src="carcass_collect_stepAIC_results_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Collecting stepAIC Results</h1>
@@ -92,7 +92,7 @@
 
     
     
-<div class="sourceCode"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ModelSelection</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ModelSelection</span>)</pre></body></html></div>
 <div id="hintergrund" class="section level1">
 <h1 class="hasAnchor">
 <a href="#hintergrund" class="anchor"></a>Hintergrund</h1>
@@ -107,7 +107,7 @@
 <h1 class="hasAnchor">
 <a href="#beispiel" class="anchor"></a>Beispiel</h1>
 <p>Die Funktion <code>collect_stepAIC_results</code> soll am folgenden Beispiel getestet werden.</p>
-<div class="sourceCode"><html><body><pre class="r"><span class="co"># get vector with sample data</span>
+<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># get vector with sample data</span>
 <span class="no">vec_sample_path</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"sample1"</span>,<span class="st">"fleisch.out"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"ModelSelection"</span>),
                      <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"sample2"</span>,<span class="st">"fleisch.out"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"ModelSelection"</span>))
 <span class="kw">if</span> (!<span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(<span class="no">vec_sample_path</span>)))
@@ -125,7 +125,7 @@
 
 <span class="co"># specify response</span>
 <span class="no">s_response</span> <span class="kw">&lt;-</span> <span class="st">"ccao"</span></pre></body></html></div>
-<div class="sourceCode"><html><body><pre class="r"><span class="co"># call function</span>
+<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># call function</span>
 <span class="no">tbl_collected_results</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/collect_stepAIC_results.html">collect_stepAIC_results</a></span>(<span class="kw">pvec_sample</span> <span class="kw">=</span> <span class="no">vec_sample_path</span>,
                                                  <span class="kw">ps_response</span> <span class="kw">=</span> <span class="no">s_response</span>,
                                                  <span class="kw">pvec_ignoring_columns</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">setdiff</a></span>(<span class="no">vec_ignoring_columns</span>, <span class="no">s_response</span>),
@@ -189,13 +189,13 @@
 <p>Es besteht ein Template, welches mit einem Parameter-File ab dem Terminal ausgeführt werden kann, um ein HTML-Dokument mit der Zusammenstellung von Modellselektionsresultaten über verschiedene Stichprobendatensätze darzustellen.</p>
 <p>Um dieses Template zu verwenden, müsst ihr ein Paramter-File mit Ihren Angaben herstellen. Das Parameter-File muss folgende Angaben haben:</p>
 <ul>
-<li><p>dir = Pfad wo sich die Daten für Modellselektion befinden</p></li>
+<li><p>dir = Pfad wo sich die Daten für die Modellselektion befinden</p></li>
 <li><p>traits = Merkmalsname</p></li>
-<li><p>fixeffects = Name des fixen Effekten</p></li>
+<li><p>fixeffects = Name der fixen Effekte, wobei wichtig ist, dass diese als Kolonnen-Header im Datenfile vorkommen</p></li>
 <li><p>colnames2ignore = Spalte zu ignorieren (Aufpassen: dazu soll die Merkmalsnamen intergriert sein)</p></li>
 </ul>
 <p>Dann sieht der Parameter-File so aus:</p>
-<div class="sourceCode"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">dir</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/sample1/fleisch.out"</span>,<span class="st">"/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/sample2/fleisch.out"</span>),
+<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">dir</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/sample1/fleisch.out"</span>,<span class="st">"/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/sample2/fleisch.out"</span>),
     <span class="kw">traits</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"ccao"</span>,<span class="st">"cccn"</span>),
     <span class="kw">colnames2ignore</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"herdyear"</span>,<span class="st">"herd"</span>, <span class="st">"prodsystem"</span>, <span class="st">"calfcull"</span>, <span class="st">"controlcull"</span>, <span class="st">"ageVK"</span>,<span class="st">"slaughterCategory"</span>, <span class="st">"branding"</span>,
     <span class="st">"cccn"</span>, <span class="st">"ccco"</span>, <span class="st">"ccan"</span>, <span class="st">"ccas"</span>, <span class="st">"ccao"</span>, <span class="st">"ccvn"</span>, <span class="st">"ccvo"</span>,
@@ -204,7 +204,7 @@
     <span class="st">"cacn"</span>, <span class="st">"caco"</span>, <span class="st">"caan"</span>, <span class="st">"caas"</span>, <span class="st">"caao"</span>, <span class="st">"cavn"</span>, <span class="st">"cavo"</span>),
     <span class="kw">fixeffects</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"sex"</span>, <span class="st">"abattoir"</span>, <span class="st">"classifier"</span>, <span class="st">"yearsaison"</span>,<span class="st">"breedcomb"</span>, <span class="st">"Effekt_HeterosisSumHet"</span>, <span class="st">"Effekt_RekombinationSumRec"</span>))</pre></body></html></div>
 <p>Sobald, dass das RPackage installiert ist, könnt ihr das Template auf den Terminal mit diesem Befehl ausführen, wobei pardir und outdir müsst ihr angeben:</p>
-<div class="sourceCode"><pre class="sourceCode bash"><code class="sourceCode bash"><span class="ex">R</span> -e <span class="st">"rmarkdown::render(file.path(system.file(package = 'ModelSelection'), 'template.Rmd'), params = dget(file = 'pardir/template.par'), output_dir = 'outdir')"</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">R</span> <span class="at">-e</span> <span class="st">"rmarkdown::render(system.file('extdata', 'rmd', 'template.Rmd', package = 'ModelSelection'), params = dget(file = 'pardir/template.par'), output_dir = 'outdir')"</span></span></code></pre></div>
 </div>
   </div>
 
