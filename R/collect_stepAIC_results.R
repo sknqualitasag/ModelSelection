@@ -115,7 +115,7 @@ collect_stepAIC_results <- function(pvec_sample, ps_response,
 read_sample <- function(ps_sample_path){
   #depending of the file-extension, different reading functions for the first sample
   if(assertthat::has_extension(path = ps_sample_path, ext = "csv")){
-    tbl_sample <- readr::read_csv(file = ps_sample_path, col_types = readr::cols())
+    tbl_sample <- readr::read_delim(file = ps_sample_path, delim = ";")
   } else if(assertthat::has_extension(path = ps_sample_path, ext = "txt") ||
             assertthat::has_extension(path = ps_sample_path, ext = "out")){
     tbl_sample <- readr::read_delim(file = ps_sample_path, delim = " ", col_types = readr::cols())

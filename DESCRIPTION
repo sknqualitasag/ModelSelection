@@ -13,5 +13,5 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 URL: https://sknqualitasag.github.io/ModelSelection, https://github.com/sknqualitasag/ModelSelection
