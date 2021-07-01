@@ -1,7 +1,7 @@
 pandoc: 2.11.4
-pkgdown: 1.5.1
+pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   carcass_collect_stepAIC_results: carcass_collect_stepAIC_results.html
-last_built: 2021-04-15T12:37Z
+last_built: 2021-07-01T12:03Z
 

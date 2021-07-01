@@ -92,7 +92,8 @@
 
     
     
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ModelSelection</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://sknqualitasag.github.io/ModelSelection">ModelSelection</a></span><span class="op">)</span></code></pre></div>
 <div id="hintergrund" class="section level1">
 <h1 class="hasAnchor">
 <a href="#hintergrund" class="anchor"></a>Hintergrund</h1>
@@ -107,29 +108,31 @@
 <h1 class="hasAnchor">
 <a href="#beispiel" class="anchor"></a>Beispiel</h1>
 <p>Die Funktion <code>collect_stepAIC_results</code> soll am folgenden Beispiel getestet werden.</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># get vector with sample data</span>
-<span class="no">vec_sample_path</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"sample1"</span>,<span class="st">"fleisch.out"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"ModelSelection"</span>),
-                     <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"extdata"</span>, <span class="st">"sample2"</span>,<span class="st">"fleisch.out"</span>, <span class="kw">package</span> <span class="kw">=</span> <span class="st">"ModelSelection"</span>))
-<span class="kw">if</span> (!<span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span>(<span class="no">vec_sample_path</span>)))
-  <span class="fu"><a href="https://rdrr.io/r/base/stop.html">stop</a></span>(<span class="st">" * ERROR: Cannot find sample data file: "</span>, <span class="no">vec_sample_path</span>)
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># get vector with sample data</span>
+<span class="va">vec_sample_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"sample1"</span>,<span class="st">"fleisch.out"</span>, package <span class="op">=</span> <span class="st">"ModelSelection"</span><span class="op">)</span>,
+                     <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"sample2"</span>,<span class="st">"fleisch.out"</span>, package <span class="op">=</span> <span class="st">"ModelSelection"</span><span class="op">)</span><span class="op">)</span>
+<span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/files.html">file.exists</a></span><span class="op">(</span><span class="va">vec_sample_path</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/stop.html">stop</a></span><span class="op">(</span><span class="st">" * ERROR: Cannot find sample data file: "</span>, <span class="va">vec_sample_path</span><span class="op">)</span>
 
 <span class="co"># specify a vector with columns to be ignored (incl. the traits)</span>
-<span class="no">vec_ignoring_columns</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"herdyear"</span>,<span class="st">"herd"</span>,<span class="st">"prodsystem"</span>,<span class="st">"calfcull"</span>,<span class="st">"controlcull"</span>,<span class="st">"ageVK"</span>,<span class="st">"slaughterCategory"</span>,<span class="st">"branding"</span>,
+<span class="va">vec_ignoring_columns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"herdyear"</span>,<span class="st">"herd"</span>,<span class="st">"prodsystem"</span>,<span class="st">"calfcull"</span>,<span class="st">"controlcull"</span>,<span class="st">"ageVK"</span>,<span class="st">"slaughterCategory"</span>,<span class="st">"branding"</span>,
                           <span class="st">"cccn"</span>,<span class="st">"ccco"</span>,<span class="st">"ccan"</span>,<span class="st">"ccas"</span>,<span class="st">"ccao"</span>,<span class="st">"ccvn"</span>,<span class="st">"ccvo"</span>,
                           <span class="st">"cwcn"</span>,<span class="st">"cwco"</span>,<span class="st">"cwan"</span>,<span class="st">"cwas"</span>,<span class="st">"cwao"</span>,<span class="st">"cwvn"</span>,<span class="st">"cwvo"</span>,
                           <span class="st">"cfcn"</span>,<span class="st">"cfco"</span>,<span class="st">"cfan"</span>,<span class="st">"cfas"</span>,<span class="st">"cfao"</span>,<span class="st">"cfvn"</span>,<span class="st">"cfvo"</span>,
-                          <span class="st">"cacn"</span>,<span class="st">"caco"</span>,<span class="st">"caan"</span>,<span class="st">"caas"</span>,<span class="st">"caao"</span>,<span class="st">"cavn"</span>,<span class="st">"cavo"</span>)
+                          <span class="st">"cacn"</span>,<span class="st">"caco"</span>,<span class="st">"caan"</span>,<span class="st">"caas"</span>,<span class="st">"caao"</span>,<span class="st">"cavn"</span>,<span class="st">"cavo"</span><span class="op">)</span>
 
 <span class="co"># specify a vector of fixed effects</span>
-<span class="no">vec_fixeffect_columns</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"sex"</span>,<span class="st">"abattoir"</span>,<span class="st">"classifier"</span>,<span class="st">"yearsaison"</span>,<span class="st">"breedcomb"</span>,<span class="st">"Effekt_HeterosisSumHet"</span>,<span class="st">"Effekt_RekombinationSumRec"</span>)
+<span class="va">vec_fixeffect_columns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"sex"</span>,<span class="st">"abattoir"</span>,<span class="st">"classifier"</span>,<span class="st">"yearsaison"</span>,<span class="st">"breedcomb"</span>,<span class="st">"Effekt_HeterosisSumHet"</span>,<span class="st">"Effekt_RekombinationSumRec"</span><span class="op">)</span>
 
 <span class="co"># specify response</span>
-<span class="no">s_response</span> <span class="kw">&lt;-</span> <span class="st">"ccao"</span></pre></body></html></div>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># call function</span>
-<span class="no">tbl_collected_results</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/collect_stepAIC_results.html">collect_stepAIC_results</a></span>(<span class="kw">pvec_sample</span> <span class="kw">=</span> <span class="no">vec_sample_path</span>,
-                                                 <span class="kw">ps_response</span> <span class="kw">=</span> <span class="no">s_response</span>,
-                                                 <span class="kw">pvec_ignoring_columns</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">setdiff</a></span>(<span class="no">vec_ignoring_columns</span>, <span class="no">s_response</span>),
-                                                 <span class="kw">pvec_fixeffect_columns</span> <span class="kw">=</span> <span class="no">vec_fixeffect_columns</span>)</pre></body></html></div>
+<span class="va">s_response</span> <span class="op">&lt;-</span> <span class="st">"ccao"</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># call function</span>
+<span class="va">tbl_collected_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/collect_stepAIC_results.html">collect_stepAIC_results</a></span><span class="op">(</span>pvec_sample <span class="op">=</span> <span class="va">vec_sample_path</span>,
+                                                 ps_response <span class="op">=</span> <span class="va">s_response</span>,
+                                                 pvec_ignoring_columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">setdiff</a></span><span class="op">(</span><span class="va">vec_ignoring_columns</span>, <span class="va">s_response</span><span class="op">)</span>,
+                                                 pvec_fixeffect_columns <span class="op">=</span> <span class="va">vec_fixeffect_columns</span><span class="op">)</span></code></pre></div>
 <p>Definition von dem Modell wird</p>
 <ul>
 <li><p>für die fixen Effekte in ‘pvec_fixeffect_columns’</p></li>
@@ -139,6 +142,19 @@
 <p>Alles andere unnötige Informationen, wo in dem Datensatz sich befindet, wird in ‘pvec_ignoring_columns’ gespeichert.</p>
 <table class="table">
 <caption>ccao</caption>
+<colgroup>
+<col width="6%">
+<col width="3%">
+<col width="6%">
+<col width="8%">
+<col width="3%">
+<col width="8%">
+<col width="8%">
+<col width="7%">
+<col width="17%">
+<col width="20%">
+<col width="7%">
+</colgroup>
 <thead><tr class="header">
 <th align="right">SampleID</th>
 <th align="right">sex</th>
@@ -195,14 +211,15 @@
 <li><p>colnames2ignore = Spalte zu ignorieren (Aufpassen: dazu soll die Merkmalsnamen intergriert sein)</p></li>
 </ul>
 <p>Dann sieht der Parameter-File so aus:</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">dir</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/sample1/fleisch.out"</span>,<span class="st">"/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/sample2/fleisch.out"</span>),
-    <span class="kw">traits</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"ccao"</span>,<span class="st">"cccn"</span>),
-    <span class="kw">colnames2ignore</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"herdyear"</span>,<span class="st">"herd"</span>, <span class="st">"prodsystem"</span>, <span class="st">"calfcull"</span>, <span class="st">"controlcull"</span>, <span class="st">"ageVK"</span>,<span class="st">"slaughterCategory"</span>, <span class="st">"branding"</span>,
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/sample1/fleisch.out"</span>,<span class="st">"/Users/skn/muku_Carcass/prog/ModelSelection/inst/extdata/sample2/fleisch.out"</span><span class="op">)</span>,
+    traits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ccao"</span>,<span class="st">"cccn"</span><span class="op">)</span>,
+    colnames2ignore <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"herdyear"</span>,<span class="st">"herd"</span>, <span class="st">"prodsystem"</span>, <span class="st">"calfcull"</span>, <span class="st">"controlcull"</span>, <span class="st">"ageVK"</span>,<span class="st">"slaughterCategory"</span>, <span class="st">"branding"</span>,
     <span class="st">"cccn"</span>, <span class="st">"ccco"</span>, <span class="st">"ccan"</span>, <span class="st">"ccas"</span>, <span class="st">"ccao"</span>, <span class="st">"ccvn"</span>, <span class="st">"ccvo"</span>,
     <span class="st">"cwcn"</span>, <span class="st">"cwco"</span>, <span class="st">"cwan"</span>, <span class="st">"cwas"</span>, <span class="st">"cwao"</span>, <span class="st">"cwvn"</span>, <span class="st">"cwvo"</span>,
     <span class="st">"cfcn"</span>, <span class="st">"cfco"</span>, <span class="st">"cfan"</span>, <span class="st">"cfas"</span>, <span class="st">"cfao"</span>, <span class="st">"cfvn"</span>, <span class="st">"cfvo"</span>,
-    <span class="st">"cacn"</span>, <span class="st">"caco"</span>, <span class="st">"caan"</span>, <span class="st">"caas"</span>, <span class="st">"caao"</span>, <span class="st">"cavn"</span>, <span class="st">"cavo"</span>),
-    <span class="kw">fixeffects</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"sex"</span>, <span class="st">"abattoir"</span>, <span class="st">"classifier"</span>, <span class="st">"yearsaison"</span>,<span class="st">"breedcomb"</span>, <span class="st">"Effekt_HeterosisSumHet"</span>, <span class="st">"Effekt_RekombinationSumRec"</span>))</pre></body></html></div>
+    <span class="st">"cacn"</span>, <span class="st">"caco"</span>, <span class="st">"caan"</span>, <span class="st">"caas"</span>, <span class="st">"caao"</span>, <span class="st">"cavn"</span>, <span class="st">"cavo"</span><span class="op">)</span>,
+    fixeffects <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"sex"</span>, <span class="st">"abattoir"</span>, <span class="st">"classifier"</span>, <span class="st">"yearsaison"</span>,<span class="st">"breedcomb"</span>, <span class="st">"Effekt_HeterosisSumHet"</span>, <span class="st">"Effekt_RekombinationSumRec"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>Sobald, dass das RPackage installiert ist, könnt ihr das Template auf den Terminal mit diesem Befehl ausführen, wobei pardir und outdir müsst ihr angeben:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">R</span> <span class="at">-e</span> <span class="st">"rmarkdown::render(system.file('extdata', 'rmd', 'template.Rmd', package = 'ModelSelection'), params = dget(file = 'pardir/template.par'), output_dir = 'outdir')"</span></span></code></pre></div>
 </div>
@@ -223,7 +240,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
