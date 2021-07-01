@@ -45,7 +45,7 @@ vec_ignoring_columns <- params$colnames2ignore
 vec_fixeffect_columns <- params$fixeffects
 ```
 
-```{r,results='asis', warning=FALSE, echo=FALSE}
+```{r,results='asis', warning=FALSE, echo=FALSE, message=FALSE}
 for(s_response in vec_reponse){
   
   tbl_collected_results <- collect_stepAIC_results(pvec_sample = vec_sample_path,
